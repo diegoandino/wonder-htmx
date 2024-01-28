@@ -1,0 +1,78 @@
+### Backend (Go) ###
+
+# Binaries for programs and plugins
+server/bin/
+server/obj/
+*.o
+*.a
+*.so
+
+# Environment Variables
+*.env
+
+# Executables
+*.exe
+*.exe~
+*.dll
+*.dylib
+*.test
+
+# Go build directories
+server/dist/
+
+# Dependency directories (uncomment if not using a vendor directory)
+# server/vendor/
+
+# Error logs
+*.log
+
+# Output of the go coverage tool, profile.out
+*.out
+
+### Frontend (Svelte with TypeScript) ###
+
+# Node modules and build directories
+wonder-go/node_modules/
+wonder-go/public/build/
+wonder-go/build/
+wonder-go/dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Package lock files and environment variables
+wonder-go/package-lock.json
+wonder-go/yarn.lock
+wonder-go/.env
+wonder-go/.env.local
+wonder-go/.env.development.local
+wonder-go/.env.test.local
+wonder-go/.env.production.local
+
+# Svelte and TypeScript generated files
+wonder-go/.svelte-kit/
+wonder-go/.svelte/
+wonder-go/*.tsbuildinfo
+
+### IDEs and Editors ###
+
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+.vs/
+*.vscode
+*.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+### System Files ###
+
+.DS_Store
+Thumbs.db
