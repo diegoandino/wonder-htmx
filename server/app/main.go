@@ -62,6 +62,7 @@ func main() {
 	app.GET("/login", loginHandler.LoginHandler)
 	app.GET("/callback", loginHandler.CallbackHandler)
 	app.GET("/current-song", userHandler.CurrentSongHandler)
+	app.GET("/home", userHandler.UserShowHandler)
 
 	log.Println("Starting server on :8080")
 	app.Logger.Fatal(app.Start(":8080"))

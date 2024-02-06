@@ -1,0 +1,9 @@
+package user
+
+import (
+	"github.com/diegoandino/wonder-go/model"
+)
+
+templ Show(u model.UserPayload) {
+    <h1>Hello { u.Username }!</h1>
+}

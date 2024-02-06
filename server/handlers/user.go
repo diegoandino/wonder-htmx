@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/diegoandino/wonder-go/model"
+	"github.com/diegoandino/wonder-go/views/user"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo/v4"
 	"github.com/zmb3/spotify"
@@ -19,12 +21,12 @@ type UserHandler struct {
 	UserDataStore *sync.Map
 }
 
-type UserPayload struct {
-	Username         string `json:"username"`
-	ProfilePicture   string `json:"profile_picture"`
-	CurrentAlbumArt  string `json:"current_album_art"`
-	CurrentSongName  string `json:"current_song_name"`
-	CurrentAlbumName string `json:"current_album_name"`
+func (h UserHandler) UserShowHandler(c echo.Context) error {
+	userPayload, err := h.getUserPayload(c)
+	if err != nil {
+		return err
+	}
+	return render(c, user.Show(userPayload))
 }
 
 func (h UserHandler) CurrentSongHandler(c echo.Context) error {
@@ -50,28 +52,36 @@ func (h UserHandler) CurrentSongHandler(c echo.Context) error {
 		log.Fatal("Couldn't prepare db statement:", err)
 	}
 	defer stmt.Close()
-
-	var userPayload UserPayload
-	user, err := h.getCurrentUser(c)
+	userPayload, err := h.getUserPayload(c)
 	if err != nil {
 		return err
+	}
+	_, err = stmt.Exec(userPayload.ID, userPayload.Username, userPayload.CurrentSongName, userPayload.CurrentAlbumArt, userPayload.CurrentAlbumName, userPayload.CurrentArtistName)
+
+	return c.JSON(http.StatusOK, userPayload)
+}
+
+func (h UserHandler) getUserPayload(c echo.Context) (model.UserPayload, error) {
+	var userPayload model.UserPayload
+	user, err := h.getCurrentUser(c)
+	if err != nil {
+		return model.UserPayload{}, err
 	}
 
 	if storedClient, ok := h.UserDataStore.Load(user.ID); ok {
 		client := storedClient.(*spotify.Client)
 		playing, err := client.PlayerCurrentlyPlaying()
 		if err != nil {
-			return err
+			return model.UserPayload{}, err
 		}
 
 		if playing.Item != nil {
-			//fmt.Fprintf(w, "Currently playing: %s by %s", playing.Item.Name, playing.Item.Artists[0].Name)
-			_, err := stmt.Exec(user.ID, user.DisplayName, playing.Item.Name, playing.Item.Album.Images[0].URL, playing.Item.Album.Name, playing.Item.Artists[0].Name)
 			if err != nil {
 				log.Fatal("Couldn't upsert into Users table:", err)
 			}
 
-			userPayload = UserPayload{
+			userPayload = model.UserPayload{
+				ID:               user.ID,
 				Username:         user.DisplayName,
 				ProfilePicture:   user.Images[0].URL,
 				CurrentAlbumArt:  playing.Item.Album.Images[0].URL,
@@ -80,13 +90,13 @@ func (h UserHandler) CurrentSongHandler(c echo.Context) error {
 			}
 			c.Request().Header.Set("Content-Type", "application/json")
 		} else {
-			c.String(200, "No song is currently playing")
+			return model.UserPayload{}, errors.New("No song is currently playing")
 		}
 	} else {
-		c.String(404, "User data not found")
+		return model.UserPayload{}, errors.New("User data not found")
 	}
 
-	return c.JSON(http.StatusOK, userPayload)
+	return userPayload, nil
 }
 
 func (h UserHandler) getCurrentUser(c echo.Context) (*spotify.PrivateUser, error) {
