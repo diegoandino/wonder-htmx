@@ -57,11 +57,10 @@ func main() {
 	app := echo.New()
 
 	loginHandler := handlers.LoginHandler{Auth: auth, Store: store, UserDataStore: &userDataStore}
-	userHandler := handlers.UserHandler{Auth: auth, Store: store, UserDataStore: &userDataStore}
+	userHandler := handlers.UserHandler{Auth: auth, Store: store, UserDataStore: &userDataStore, LoginHandler: loginHandler}
 	app.GET("/", loginHandler.RedirectHandler)
 	app.GET("/login", loginHandler.LoginHandler)
 	app.GET("/callback", loginHandler.CallbackHandler)
-	app.GET("/current-song", userHandler.CurrentSongHandler)
 	app.GET("/home", userHandler.UserShowHandler)
 
 	log.Println("Starting server on :8080")

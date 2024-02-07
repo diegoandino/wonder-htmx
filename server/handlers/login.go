@@ -49,5 +49,13 @@ func (h LoginHandler) CallbackHandler(c echo.Context) error {
 	}
 
 	h.UserDataStore.Store(user.ID, &client)
-	return c.Redirect(http.StatusTemporaryRedirect, "/current-song")
+	return c.Redirect(http.StatusTemporaryRedirect, "/home")
+}
+
+func (h LoginHandler) SessionExists(c echo.Context) (bool, error) {
+	s, err := h.Store.Get(c.Request(), "spotify-session")
+	if err != nil {
+		return false, err
+	}
+	return s.IsNew, nil
 }

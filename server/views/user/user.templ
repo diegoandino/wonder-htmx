@@ -1,9 +1,92 @@
 package user
 
 import (
-	"github.com/diegoandino/wonder-go/model"
+    "github.com/diegoandino/wonder-go/model"
 )
 
-templ Show(u model.UserPayload) {
-    <h1>Hello { u.Username }!</h1>
+templ Show(u model.UserPayload, friends []model.UserPayload) {
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1, h2, h3, h4 {
+            color: #333;
+        }
+
+        img {
+            border-radius: 8px;
+            width: 100px; /* Adjust based on your preference */
+            height: auto;
+        }
+
+        .currently-playing {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .friends {
+            margin-top: 20px;
+        }
+
+        .friends h2 {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        li h3 {
+            margin-top: 0;
+        }
+
+        p {
+            margin: 5px 0;
+        }
+    </style>
+ 
+
+    <div class="user-profile">
+        <h1>{ u.Username }</h1>
+        <img src={ u.ProfilePicture } alt="Profile Picture"/>
+    </div>
+
+    <div class="currently-playing">
+        <h2>Currently Playing</h2>
+        <img src={ u.CurrentAlbumArt } alt="Album Art"/>
+        <h3>{ u.CurrentSongName } by { u.CurrentArtistName }</h3>
+        <h4>Album: { u.CurrentAlbumName }</h4>
+    </div>
+
+    <div class="friends">
+        <h2>Friends</h2>
+        <ul class="currently-playing">
+            for _, friend := range friends {
+                <li>
+                    <h3>{ friend.Username }</h3>
+                    <img src={ friend.ProfilePicture } alt="Friend's Profile Picture"/>
+                    <p>Currently Playing: { friend.CurrentSongName } by { friend.CurrentArtistName }</p>
+                    <p>Album: { friend.CurrentAlbumName }</p>
+                    <img src={ friend.CurrentAlbumArt } alt="Friend's Album Art"/>
+                </li>
+            }
+        </ul>
+    </div>
 }
