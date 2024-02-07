@@ -62,8 +62,8 @@ func (h UserHandler) upsertUserDB(c echo.Context, userPayload model.UserPayload)
 
 	// Prepare the UPSERT statement
 	stmt, err := db.Prepare(`
-        INSERT INTO Users(spotify_user_id, display_name, profile_picture, current_playing_song, current_album_art, current_album_name, current_artist_name) 
-        VALUES(?,?,?,?,?,?,?)
+        INSERT INTO Users(spotify_user_id, display_name, profile_picture, current_playing_song, current_album_art, current_album_name, current_artist_name, current_song_url) 
+        VALUES(?,?,?,?,?,?,?,?)
         ON CONFLICT(spotify_user_id) 
         DO UPDATE SET 
             display_name=excluded.display_name, 
@@ -71,13 +71,14 @@ func (h UserHandler) upsertUserDB(c echo.Context, userPayload model.UserPayload)
             current_playing_song=excluded.current_playing_song, 
             current_album_art=excluded.current_album_art, 
             current_album_name=excluded.current_album_name, 
-            current_artist_name=excluded.current_artist_name
+            current_artist_name=excluded.current_artist_name,
+			current_song_url=excluded.current_song_url
     `)
 	if err != nil {
-		log.Fatal("Couldn't prepare db statement:", err)
+		log.Fatal("Couldn't prepare db statement: upsertUser. Err: ", err)
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(userPayload.ID, userPayload.Username, userPayload.ProfilePicture, userPayload.CurrentSongName, userPayload.CurrentAlbumArt, userPayload.CurrentAlbumName, userPayload.CurrentArtistName)
+	_, err = stmt.Exec(userPayload.ID, userPayload.Username, userPayload.ProfilePicture, userPayload.CurrentSongName, userPayload.CurrentAlbumArt, userPayload.CurrentAlbumName, userPayload.CurrentArtistName, userPayload.CurrentSongUrl)
 
 	return err
 }
@@ -144,16 +145,16 @@ func (h UserHandler) getFriendPayload(friendID string) (model.UserPayload, error
 
 	// Prepare the SELECT statement
 	stmt, err := db.Prepare(`
-        SELECT spotify_user_id, display_name, profile_picture, current_playing_song, current_album_art, current_album_name, current_artist_name 
+        SELECT spotify_user_id, display_name, profile_picture, current_playing_song, current_album_art, current_album_name, current_artist_name, current_song_url 
         FROM USERS WHERE spotify_user_id=?
-    `) // Assuming the column to match friendID is spotify_user_id
+    `)
 	if err != nil {
 		log.Fatal("Couldn't prepare db statement:", err) // Consider changing log.Fatal to a more graceful error handling
 	}
 	defer stmt.Close()
 
 	var friendPayload model.UserPayload
-	err = stmt.QueryRow(friendID).Scan(&friendPayload.ID, &friendPayload.Username, &friendPayload.ProfilePicture, &friendPayload.CurrentSongName, &friendPayload.CurrentAlbumArt, &friendPayload.CurrentAlbumName, &friendPayload.CurrentArtistName)
+	err = stmt.QueryRow(friendID).Scan(&friendPayload.ID, &friendPayload.Username, &friendPayload.ProfilePicture, &friendPayload.CurrentSongName, &friendPayload.CurrentAlbumArt, &friendPayload.CurrentAlbumName, &friendPayload.CurrentArtistName, &friendPayload.CurrentSongUrl)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return model.UserPayload{}, errors.New("No friend found with the given ID")
@@ -191,6 +192,7 @@ func (h UserHandler) getUserPayload(c echo.Context) (model.UserPayload, error) {
 				CurrentSongName:   playing.Item.Name,
 				CurrentAlbumName:  playing.Item.Album.Name,
 				CurrentArtistName: playing.Item.Artists[0].Name,
+				CurrentSongUrl:    "https://open.spotify.com/track/" + string(playing.Item.URI)[14:],
 			}
 			c.Request().Header.Set("Content-Type", "application/json")
 		} else {

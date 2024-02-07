@@ -8,4 +8,5 @@ type UserPayload struct {
 	CurrentSongName   string `json:"current_song_name"`
 	CurrentArtistName string `json:"current_artist_name"`
 	CurrentAlbumName  string `json:"current_album_name"`
+	CurrentSongUrl    string `json:"current_song_url"`
 }

@@ -17,6 +17,9 @@ server/obj/
 *.dylib
 *.test
 
+# DB
+*.db
+
 # Go build directories
 server/dist/
 

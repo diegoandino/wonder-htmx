@@ -82,8 +82,10 @@ templ Show(u model.UserPayload, friends []model.UserPayload) {
                 <li>
                     <h3>{ friend.Username }</h3>
                     <img src={ friend.ProfilePicture } alt="Friend's Profile Picture"/>
-                    <p>Currently Playing: { friend.CurrentSongName } by { friend.CurrentArtistName }</p>
-                    <p>Album: { friend.CurrentAlbumName }</p>
+                    <h3>Currently Playing: </h3>
+                        <a href={ templ.URL(friend.CurrentSongUrl) } target="_blank">{ friend.CurrentSongName }</a>
+                        <h3>by { friend.CurrentArtistName }</h3>
+                        <h4>Album: { friend.CurrentAlbumName }</h4>
                     <img src={ friend.CurrentAlbumArt } alt="Friend's Album Art"/>
                 </li>
             }
