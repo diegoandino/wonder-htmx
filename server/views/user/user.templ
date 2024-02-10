@@ -5,105 +5,10 @@ import (
 )
 
 templ Show(u model.UserPayload, friends []model.UserPayload) {
-    <script src="https://unpkg.com/htmx.org"></script>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-
-        h1, h2, h3, h4 {
-            color: #333;
-        }
-
-        img {
-            border-radius: 8px;
-            width: 100px; /* Adjust based on your preference */
-            height: auto;
-        }
-
-        .currently-playing {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .friends {
-            margin-top: 20px;
-        }
-
-        .friends h2 {
-            margin-bottom: 10px;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            background-color: #fff;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        li h3 {
-            margin-top: 0;
-        }
-
-        p {
-            margin: 5px 0;
-        }
-
-        .search-container {
-            position: relative;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .friend-search-input {
-            width: 300px; /* Adjust width as needed */
-            padding: 10px;
-            border-radius: 20px;
-            border: 1px solid #ccc;
-        }
-
-        .search-results-dropdown {
-            position: absolute;
-            width: 300px; /* Match the width of the input */
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-top: none; /* Remove top border to blend with the input */
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .search-results-dropdown ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .search-results-dropdown ul li {
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .search-results-dropdown ul li:hover {
-            background-color: #f0f0f0;
-        }
-
-        .search-results-dropdown.show {
-            display: block;
-        }
-    </style>
+    <head>
+        <script src="https://unpkg.com/htmx.org"></script>
+        <link href="/static/styles.css" rel="stylesheet" />
+    </head>
 
     <div class="search-container">
         <input type="text" class="friend-search-input" name="query" hx-get="/search-friends" hx-target="#search-results-dropdown" hx-trigger="keyup changed delay:500ms" hx-indicator="#loading-indicator" placeholder="Search friends..."></input>
@@ -123,6 +28,10 @@ templ Show(u model.UserPayload, friends []model.UserPayload) {
         <h4>Album: { u.CurrentAlbumName }</h4>
     </div>
 
+   @Friends(friends) 
+}
+
+templ Friends(friends []model.UserPayload) {
     <div class="friends">
         <h2>Friends</h2>
         <ul class="currently-playing">

@@ -56,6 +56,7 @@ func main() {
 
 	app := echo.New()
 
+	app.Static("/static", "static")
 	loginHandler := handlers.LoginHandler{Auth: auth, Store: store, UserDataStore: &userDataStore}
 	userHandler := handlers.UserHandler{Auth: auth, Store: store, UserDataStore: &userDataStore, LoginHandler: loginHandler}
 	app.GET("/", loginHandler.RedirectHandler)
