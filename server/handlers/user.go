@@ -3,9 +3,11 @@ package handlers
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
+	"text/template"
 
 	"github.com/diegoandino/wonder-go/model"
 	"github.com/diegoandino/wonder-go/views/user"
@@ -20,6 +22,62 @@ type UserHandler struct {
 	Store         *sessions.CookieStore
 	UserDataStore *sync.Map
 	LoginHandler  LoginHandler
+}
+
+func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
+	db, err := sql.Open("sqlite3", "../db/wonder.db")
+	if err != nil {
+		log.Fatal("Couldn't open db:", err)
+	}
+	defer db.Close()
+
+	query := c.QueryParam("query")
+	fmt.Println("Query: ", query)
+
+	stmt, err := db.Prepare(`select spotify_user_id, display_name, profile_picture from users where display_name like ?`)
+	if err != nil {
+		log.Fatal("Couldn't prepare db statement:", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(query)
+	if err != nil {
+		log.Fatal("Couldn't execute db query:", err)
+	}
+	defer rows.Close()
+
+	var users []model.UserPayload
+	for rows.Next() {
+		var user model.UserPayload
+		err := rows.Scan(&user.ID, &user.Username, &user.ProfilePicture)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("user: ", user)
+		users = append(users, user)
+	}
+
+	// Prepare the partial HTML snippet for search results
+	tmpl := template.New("searchResults")
+	tmpl, err = tmpl.Parse(`
+        <ul hx-swap-oob="true" id="search-results-dropdown">
+            {{range .}}
+                <li>
+                    <h3>{{.Username}}</h3>
+                    <img src="{{.ProfilePicture}}" alt="Profile Picture" style="width: 50px; height: 50px;">
+					<button>Add Friend</button>
+                </li>
+            {{end}}
+        </ul>
+    `)
+
+	if err != nil {
+		return err
+	}
+
+	// Execute the template with the users slice to generate the HTML
+	return tmpl.Execute(c.Response().Writer, users)
 }
 
 func (h UserHandler) UserShowHandler(c echo.Context) error {

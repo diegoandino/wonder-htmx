@@ -27,14 +27,14 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\n        body {\n            font-family: 'Arial', sans-serif;\n            background-color: #f4f4f4;\n            margin: 0;\n            padding: 20px;\n            color: #333;\n        }\n\n        h1, h2, h3, h4 {\n            color: #333;\n        }\n\n        img {\n            border-radius: 8px;\n            width: 100px; /* Adjust based on your preference */\n            height: auto;\n        }\n\n        .currently-playing {\n            background-color: #fff;\n            padding: 15px;\n            border-radius: 8px;\n            box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n            margin-bottom: 20px;\n        }\n\n        .friends {\n            margin-top: 20px;\n        }\n\n        .friends h2 {\n            margin-bottom: 10px;\n        }\n\n        ul {\n            list-style: none;\n            padding: 0;\n        }\n\n        li {\n            background-color: #fff;\n            padding: 10px;\n            margin-bottom: 10px;\n            border-radius: 8px;\n            box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n        }\n\n        li h3 {\n            margin-top: 0;\n        }\n\n        p {\n            margin: 5px 0;\n        }\n    </style><div class=\"user-profile\"><h1>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script src=\"https://unpkg.com/htmx.org\"></script><style>\n        body {\n            font-family: 'Arial', sans-serif;\n            background-color: #f4f4f4;\n            margin: 0;\n            padding: 20px;\n            color: #333;\n        }\n\n        h1, h2, h3, h4 {\n            color: #333;\n        }\n\n        img {\n            border-radius: 8px;\n            width: 100px; /* Adjust based on your preference */\n            height: auto;\n        }\n\n        .currently-playing {\n            background-color: #fff;\n            padding: 15px;\n            border-radius: 8px;\n            box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n            margin-bottom: 20px;\n        }\n\n        .friends {\n            margin-top: 20px;\n        }\n\n        .friends h2 {\n            margin-bottom: 10px;\n        }\n\n        ul {\n            list-style: none;\n            padding: 0;\n        }\n\n        li {\n            background-color: #fff;\n            padding: 10px;\n            margin-bottom: 10px;\n            border-radius: 8px;\n            box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n        }\n\n        li h3 {\n            margin-top: 0;\n        }\n\n        p {\n            margin: 5px 0;\n        }\n\n        .search-container {\n            position: relative;\n            text-align: center;\n            margin-top: 20px;\n        }\n\n        .friend-search-input {\n            width: 300px; /* Adjust width as needed */\n            padding: 10px;\n            border-radius: 20px;\n            border: 1px solid #ccc;\n        }\n\n        .search-results-dropdown {\n            position: absolute;\n            width: 300px; /* Match the width of the input */\n            background-color: #fff;\n            border: 1px solid #ddd;\n            border-top: none; /* Remove top border to blend with the input */\n            border-radius: 0 0 8px 8px;\n            box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n        }\n\n        .search-results-dropdown ul {\n            list-style: none;\n            margin: 0;\n            padding: 0;\n        }\n\n        .search-results-dropdown ul li {\n            padding: 10px;\n            cursor: pointer;\n        }\n\n        .search-results-dropdown ul li:hover {\n            background-color: #f0f0f0;\n        }\n\n        .search-results-dropdown.show {\n            display: block;\n        }\n    </style><div class=\"search-container\"><input type=\"text\" class=\"friend-search-input\" name=\"query\" hx-get=\"/search-friends\" hx-target=\"#search-results-dropdown\" hx-trigger=\"keyup changed delay:500ms\" hx-indicator=\"#loading-indicator\" placeholder=\"Search friends...\"><div id=\"loading-indicator\" style=\"display:none;\">Loading...</div><div id=\"search-results-dropdown\" class=\"search-results-dropdown\"></div></div><div class=\"user-profile\"><h1>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(u.Username)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 66, Col: 24}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 114, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -63,7 +63,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(u.CurrentSongName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 73, Col: 31}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 121, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -76,7 +76,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(u.CurrentArtistName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 73, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 121, Col: 58}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -89,7 +89,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(u.CurrentAlbumName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 74, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 122, Col: 39}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -107,7 +107,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(friend.Username)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 82, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 130, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -137,7 +137,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(friend.CurrentSongName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 85, Col: 109}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 133, Col: 109}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -150,7 +150,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(friend.CurrentArtistName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 86, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 134, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -163,7 +163,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(friend.CurrentAlbumName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 87, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 135, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
