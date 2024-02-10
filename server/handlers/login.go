@@ -4,10 +4,12 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo/v4"
 	"github.com/zmb3/spotify"
+	"golang.org/x/oauth2"
 )
 
 type LoginHandler struct {
@@ -52,10 +54,21 @@ func (h LoginHandler) CallbackHandler(c echo.Context) error {
 	return c.Redirect(http.StatusTemporaryRedirect, "/home")
 }
 
-func (h LoginHandler) SessionExists(c echo.Context) (bool, error) {
-	s, err := h.Store.Get(c.Request(), "spotify-session")
+func (h LoginHandler) ValidateSession(c echo.Context) (*oauth2.Token, bool, error) {
+	session, err := h.Store.Get(c.Request(), "spotify-session")
 	if err != nil {
-		return false, err
+		return nil, false, err
 	}
-	return s.IsNew, nil
+
+	token, ok := session.Values["token"].(*oauth2.Token)
+	if !ok || token == nil {
+		return nil, false, nil // No token found
+	}
+
+	// Check if the token is expired
+	if token.Expiry.Before(time.Now()) {
+		return token, false, nil // Token is expired
+	}
+
+	return token, true, nil
 }

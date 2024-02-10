@@ -93,18 +93,28 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 
 func (h UserHandler) UserShowHandler(c echo.Context) error {
 	// Check if logged in
-	sessionIsNew, err := h.LoginHandler.SessionExists(c)
+	token, valid, err := h.LoginHandler.ValidateSession(c)
 	if err != nil {
 		return err
 	}
 
 	// If it's a new session, redirect to login
-	if sessionIsNew {
-		c.Redirect(http.StatusTemporaryRedirect, "/login")
-		return nil
+	if !valid {
+		return c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
 
-	userPayload, err := h.getUserPayload(c)
+	// Use the valid token to create a new Spotify client
+	client := h.LoginHandler.Auth.NewClient(token)
+
+	// Store or update the client in UserDataStore
+	currentUser, err := client.CurrentUser()
+	if err != nil {
+		log.Printf("Failed to get user info; Err: %v", err)
+		return err
+	}
+	h.LoginHandler.UserDataStore.Store(currentUser.ID, &client)
+
+	userPayload, err := h.getUserPayload(c, &client)
 	if err != nil {
 		return err
 	}
@@ -234,41 +244,32 @@ func (h UserHandler) getFriendPayload(friendID string) (model.UserPayload, error
 	return friendPayload, nil
 }
 
-func (h UserHandler) getUserPayload(c echo.Context) (model.UserPayload, error) {
+func (h UserHandler) getUserPayload(c echo.Context, client *spotify.Client) (model.UserPayload, error) {
 	var userPayload model.UserPayload
 	user, err := h.getCurrentUser(c)
 	if err != nil {
 		return model.UserPayload{}, err
 	}
 
-	if storedClient, ok := h.UserDataStore.Load(user.ID); ok {
-		client := storedClient.(*spotify.Client)
-		playing, err := client.PlayerCurrentlyPlaying()
-		if err != nil {
-			return model.UserPayload{}, err
-		}
+	playing, err := client.PlayerCurrentlyPlaying()
+	if err != nil {
+		return model.UserPayload{}, err
+	}
 
-		if playing.Item != nil {
-			if err != nil {
-				log.Fatal("Couldn't upsert into Users table:", err)
-			}
-
-			userPayload = model.UserPayload{
-				ID:                user.ID,
-				Username:          user.DisplayName,
-				ProfilePicture:    user.Images[1].URL,
-				CurrentAlbumArt:   playing.Item.Album.Images[1].URL,
-				CurrentSongName:   playing.Item.Name,
-				CurrentAlbumName:  playing.Item.Album.Name,
-				CurrentArtistName: playing.Item.Artists[0].Name,
-				CurrentSongUrl:    "https://open.spotify.com/track/" + string(playing.Item.URI)[14:],
-			}
-			c.Request().Header.Set("Content-Type", "application/json")
-		} else {
-			return model.UserPayload{}, c.String(200, "No song is currently playing")
+	if playing.Item != nil {
+		userPayload = model.UserPayload{
+			ID:                user.ID,
+			Username:          user.DisplayName,
+			ProfilePicture:    user.Images[1].URL,
+			CurrentAlbumArt:   playing.Item.Album.Images[1].URL,
+			CurrentSongName:   playing.Item.Name,
+			CurrentAlbumName:  playing.Item.Album.Name,
+			CurrentArtistName: playing.Item.Artists[0].Name,
+			CurrentSongUrl:    "https://open.spotify.com/track/" + string(playing.Item.URI)[14:],
 		}
+		c.Request().Header.Set("Content-Type", "application/json")
 	} else {
-		return model.UserPayload{}, errors.New("User data not found")
+		return model.UserPayload{}, c.String(200, "No song is currently playing")
 	}
 
 	return userPayload, nil
