@@ -34,13 +34,20 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 	query := c.QueryParam("query")
 	fmt.Println("Query: ", query)
 
-	stmt, err := db.Prepare(`select spotify_user_id, display_name, profile_picture from users where display_name like ?`)
+	stmt, err := db.Prepare(`select spotify_user_id, display_name, profile_picture from users 
+				where display_name like ?
+				and spotify_user_id != ?`)
 	if err != nil {
 		log.Fatal("Couldn't prepare db statement:", err)
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(query)
+	currentUser, err := h.getCurrentUser(c)
+	if err != nil {
+		return err
+	}
+
+	rows, err := stmt.Query(query, currentUser.ID)
 	if err != nil {
 		log.Fatal("Couldn't execute db query:", err)
 	}
