@@ -34,6 +34,10 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 	query := c.QueryParam("query")
 	fmt.Println("Query: ", query)
 
+	if query == "" {
+		return c.HTML(http.StatusOK, "")
+	}
+
 	stmt, err := db.Prepare(`select spotify_user_id, display_name, profile_picture from users 
 				where display_name like ?
 				and spotify_user_id != ?`)

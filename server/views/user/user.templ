@@ -9,16 +9,19 @@ templ Show(u model.UserPayload, friends []model.UserPayload) {
         <script src="https://unpkg.com/htmx.org"></script>
         <link href="/static/styles.css" rel="stylesheet" />
     </head>
-
-    <div class="search-container">
-        <input type="text" class="friend-search-input" name="query" hx-get="/search-friends" hx-target="#search-results-dropdown" hx-trigger="keyup changed delay:500ms" hx-indicator="#loading-indicator" placeholder="Search friends..."></input>
-        <div id="loading-indicator" style="display:none;">Loading...</div>
-        <div id="search-results-dropdown" class="search-results-dropdown"></div>
-    </div>
-
-    <div class="user-profile">
-        <h1>{ u.Username }</h1>
-        <img src={ u.ProfilePicture } alt="Profile Picture"/>
+    
+    <div class="parent-user">
+        <div class="search-container">
+            <input type="text" class="friend-search-input" name="query" hx-get="/search-friends" hx-target="#search-results-dropdown" 
+                hx-trigger="keyup changed delay:500ms" hx-indicator="#loading-indicator" hx-empty="document.getElementById('search-results-dropdown').style.display='none';" 
+                placeholder="Search friends..."></input>
+            <div id="loading-indicator" style="display:none;">Loading...</div>
+            <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="user-profile">
+            <h1>{ u.Username }</h1>
+            <img src={ u.ProfilePicture } alt="Profile Picture"/>
+        </div>
     </div>
 
     <div class="currently-playing">

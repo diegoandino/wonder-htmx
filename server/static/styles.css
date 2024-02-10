@@ -53,10 +53,23 @@ p {
     margin: 5px 0;
 }
 
+.parent-user {
+    display: flex;
+    flex-flow: column-reverse;
+}
+
+.user-profile {
+    position: relative;
+    text-align: left;
+    margin-top: 20px;
+}
+
 .search-container {
+    display: inline-block;
     position: relative;
     text-align: center;
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .friend-search-input {
