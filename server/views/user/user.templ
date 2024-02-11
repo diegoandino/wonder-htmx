@@ -25,35 +25,43 @@ templ Show(u model.UserPayload, friends []model.UserPayload) {
 			<div id="loading-indicator" style="display:none;">Loading...</div>
 			<div id="search-results-dropdown" class="search-results-dropdown"></div>
 		</div>
+	</div>
+	@CurrentUser(u)
+	@Friends(friends)
+}
+
+templ CurrentUser(u model.UserPayload) {
+	<div id="current-user-container" hx-get="/get-user-payload" hx-trigger="every 5s" hx-swap="outerHTML">
 		<div class="user-profile">
 			<h1>{ u.Username }</h1>
 			<img src={ u.ProfilePicture } alt="Profile Picture"/>
 		</div>
+		<div class="currently-playing">
+			<h2>Currently Playing</h2>
+			<img src={ u.CurrentAlbumArt } alt="Album Art"/>
+			<h3>{ u.CurrentSongName } by { u.CurrentArtistName }</h3>
+			<h4>Album: { u.CurrentAlbumName }</h4>
+		</div>
 	</div>
-	<div class="currently-playing">
-		<h2>Currently Playing</h2>
-		<img src={ u.CurrentAlbumArt } alt="Album Art"/>
-		<h3>{ u.CurrentSongName } by { u.CurrentArtistName }</h3>
-		<h4>Album: { u.CurrentAlbumName }</h4>
-	</div>
-	@Friends(friends)
 }
 
 templ Friends(friends []model.UserPayload) {
-	<div class="friends">
-		<h2>Friends</h2>
-		<ul class="currently-playing">
-			for _, friend := range friends {
-				<li>
-					<h3>{ friend.Username }</h3>
-					<img src={ friend.ProfilePicture } alt="Friend's Profile Picture"/>
-					<h3>Currently Playing: </h3>
-					<a href={ templ.URL(friend.CurrentSongUrl) } target="_blank">{ friend.CurrentSongName }</a>
-					<h3>by { friend.CurrentArtistName }</h3>
-					<h4>Album: { friend.CurrentAlbumName }</h4>
-					<img src={ friend.CurrentAlbumArt } alt="Friend's Album Art"/>
-				</li>
-			}
-		</ul>
+	<div id="friends-container" hx-get="/get-friends" hx-trigger="every 5s" hx-swap="outerHTML">
+		<div class="friends">
+			<h2>Friends</h2>
+			<ul class="currently-playing">
+				for _, friend := range friends {
+					<li>
+						<h3>{ friend.Username }</h3>
+						<img src={ friend.ProfilePicture } alt="Friend's Profile Picture"/>
+						<h3>Currently Playing: </h3>
+						<a href={ templ.URL(friend.CurrentSongUrl) } target="_blank">{ friend.CurrentSongName }</a>
+						<h3>by { friend.CurrentArtistName }</h3>
+						<h4>Album: { friend.CurrentAlbumName }</h4>
+						<img src={ friend.CurrentAlbumArt } alt="Friend's Album Art"/>
+					</li>
+				}
+			</ul>
+		</div>
 	</div>
 }

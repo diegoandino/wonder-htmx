@@ -132,6 +132,41 @@ func (h UserHandler) UserShowHandler(c echo.Context) error {
 	return render(c, user.Show(userPayload, friends))
 }
 
+func (h UserHandler) GetFriendsHandler(c echo.Context) error {
+	friends, err := h.getFriends(c)
+	if err != nil {
+		return err
+	}
+
+	return render(c, user.Friends(friends))
+}
+
+func (h UserHandler) GetUserPayloadHandler(c echo.Context) error {
+	currentUser, err := h.getCurrentUser(c)
+	if err != nil {
+		return err
+	}
+
+	var client *spotify.Client
+	if storedClient, ok := h.UserDataStore.Load(currentUser.ID); ok {
+		client = storedClient.(*spotify.Client)
+	} else {
+		return c.Redirect(http.StatusTemporaryRedirect, "/login")
+	}
+
+	userPayload, err := h.getUserPayload(c, client)
+	if err != nil {
+		return err
+	}
+
+	dbErr := h.upsertUserDB(c, userPayload)
+	if dbErr != nil {
+		return dbErr
+	}
+
+	return render(c, user.CurrentUser(userPayload))
+}
+
 func (h UserHandler) upsertUserDB(c echo.Context, userPayload model.UserPayload) error {
 	db, err := sql.Open("sqlite3", "../db/wonder.db")
 	if err != nil {

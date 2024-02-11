@@ -64,6 +64,8 @@ func main() {
 	app.GET("/callback", loginHandler.CallbackHandler)
 	app.GET("/home", userHandler.UserShowHandler)
 	app.GET("/search-friends", userHandler.SearchUsersHandler)
+	app.GET("/get-friends", userHandler.GetFriendsHandler)
+	app.GET("/get-user-payload", userHandler.GetUserPayloadHandler)
 
 	log.Println("Starting server on :8080")
 	app.Logger.Fatal(app.Start(":8080"))
