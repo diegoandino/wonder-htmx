@@ -1,54 +1,59 @@
 package user
 
 import (
-    "github.com/diegoandino/wonder-go/model"
+	"github.com/diegoandino/wonder-go/model"
 )
 
 templ Show(u model.UserPayload, friends []model.UserPayload) {
-    <head>
-        <script src="https://unpkg.com/htmx.org"></script>
-        <link href="/static/styles.css" rel="stylesheet" />
-    </head>
-    
-    <div class="parent-user">
-        <div class="search-container">
-            <input type="text" class="friend-search-input" name="query" hx-get="/search-friends" hx-target="#search-results-dropdown" 
-                hx-trigger="keyup changed delay:500ms" hx-indicator="#loading-indicator" hx-empty="document.getElementById('search-results-dropdown').style.display='none';" 
-                placeholder="Search friends..."></input>
-            <div id="loading-indicator" style="display:none;">Loading...</div>
-            <div id="search-results-dropdown" class="search-results-dropdown"></div>
-        </div>
-        <div class="user-profile">
-            <h1>{ u.Username }</h1>
-            <img src={ u.ProfilePicture } alt="Profile Picture"/>
-        </div>
-    </div>
-
-    <div class="currently-playing">
-        <h2>Currently Playing</h2>
-        <img src={ u.CurrentAlbumArt } alt="Album Art"/>
-        <h3>{ u.CurrentSongName } by { u.CurrentArtistName }</h3>
-        <h4>Album: { u.CurrentAlbumName }</h4>
-    </div>
-
-   @Friends(friends) 
+	<head>
+		<script src="https://unpkg.com/htmx.org"></script>
+		<link href="/static/styles.css" rel="stylesheet"/>
+	</head>
+	<div class="parent-user">
+		<div class="search-container">
+			<input
+				type="text"
+				class="friend-search-input"
+				name="query"
+				hx-get="/search-friends"
+				hx-target="#search-results-dropdown"
+				hx-trigger="keyup changed delay:500ms"
+				hx-indicator="#loading-indicator"
+				hx-empty="document.getElementById('search-results-dropdown').style.display='none';"
+				placeholder="Search friends..."
+			/>
+			<div id="loading-indicator" style="display:none;">Loading...</div>
+			<div id="search-results-dropdown" class="search-results-dropdown"></div>
+		</div>
+		<div class="user-profile">
+			<h1>{ u.Username }</h1>
+			<img src={ u.ProfilePicture } alt="Profile Picture"/>
+		</div>
+	</div>
+	<div class="currently-playing">
+		<h2>Currently Playing</h2>
+		<img src={ u.CurrentAlbumArt } alt="Album Art"/>
+		<h3>{ u.CurrentSongName } by { u.CurrentArtistName }</h3>
+		<h4>Album: { u.CurrentAlbumName }</h4>
+	</div>
+	@Friends(friends)
 }
 
 templ Friends(friends []model.UserPayload) {
-    <div class="friends">
-        <h2>Friends</h2>
-        <ul class="currently-playing">
-            for _, friend := range friends {
-                <li>
-                    <h3>{ friend.Username }</h3>
-                    <img src={ friend.ProfilePicture } alt="Friend's Profile Picture"/>
-                    <h3>Currently Playing: </h3>
-                        <a href={ templ.URL(friend.CurrentSongUrl) } target="_blank">{ friend.CurrentSongName }</a>
-                        <h3>by { friend.CurrentArtistName }</h3>
-                        <h4>Album: { friend.CurrentAlbumName }</h4>
-                    <img src={ friend.CurrentAlbumArt } alt="Friend's Album Art"/>
-                </li>
-            }
-        </ul>
-    </div>
+	<div class="friends">
+		<h2>Friends</h2>
+		<ul class="currently-playing">
+			for _, friend := range friends {
+				<li>
+					<h3>{ friend.Username }</h3>
+					<img src={ friend.ProfilePicture } alt="Friend's Profile Picture"/>
+					<h3>Currently Playing: </h3>
+					<a href={ templ.URL(friend.CurrentSongUrl) } target="_blank">{ friend.CurrentSongName }</a>
+					<h3>by { friend.CurrentArtistName }</h3>
+					<h4>Album: { friend.CurrentAlbumName }</h4>
+					<img src={ friend.CurrentAlbumArt } alt="Friend's Album Art"/>
+				</li>
+			}
+		</ul>
+	</div>
 }
