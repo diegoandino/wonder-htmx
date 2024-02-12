@@ -72,12 +72,14 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 	// Prepare the partial HTML snippet for search results
 	tmpl := template.New("searchResults")
 	tmpl, err = tmpl.Parse(`
-        <ul hx-swap-oob="true" id="search-results-dropdown">
+        <ul hx-swap-oob="true" id="search-results-dropdown" class="w-full max-w-xs">
             {{range .}}
-                <li>
-                    <h3>{{.Username}}</h3>
-                    <img src="{{.ProfilePicture}}" alt="Profile Picture" style="width: 50px; height: 50px;">
-					<button>Add Friend</button>
+                <li class="flex bg-gray-100 rounded-lg shadow p-4">
+                    <img src="{{.ProfilePicture}}" class="w-16 h-16 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
+                    <h3 class="mt-12">{{.Username}}</h3>
+					<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+					  Add Friend
+					</button>
                 </li>
             {{end}}
         </ul>

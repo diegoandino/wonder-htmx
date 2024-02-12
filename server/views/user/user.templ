@@ -9,56 +9,73 @@ templ Show(u model.UserPayload, friends []model.UserPayload) {
 		<script src="https://unpkg.com/htmx.org"></script>
 		<link href="/static/styles.css" rel="stylesheet"/>
 	</head>
-	<div class="parent-user">
-		<div class="search-container">
-			<input
-				type="text"
-				class="friend-search-input"
-				name="query"
-				hx-get="/search-friends"
-				hx-target="#search-results-dropdown"
-				hx-trigger="keyup changed delay:500ms"
-				hx-indicator="#loading-indicator"
-				hx-empty="document.getElementById('search-results-dropdown').style.display='none';"
-				placeholder="Search friends..."
-			/>
-			<div id="loading-indicator" style="display:none;">Loading...</div>
-			<div id="search-results-dropdown" class="search-results-dropdown"></div>
-		</div>
+	@Navbar()
+	<div class="flex flex-col items-center p-4">
+		<input
+			type="text"
+			class="w-full max-w-xs p-2 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+			name="query"
+			hx-get="/search-friends"
+			hx-target="#search-results-dropdown"
+			hx-trigger="keyup changed delay:500ms"
+			hx-indicator="#loading-indicator"
+			hx-empty="document.getElementById('search-results-dropdown').style.display='none';"
+			placeholder="Search friends..."
+		/>
+		<div id="loading-indicator" class="hidden">Loading...</div>
+		<div id="search-results-dropdown" class="search-results-dropdown hidden w-full max-w-xs mt-1 bg-white shadow-lg"></div>
 	</div>
 	@CurrentUser(u)
 	@Friends(friends)
 }
 
+templ Navbar() {
+	<div class="flex flex-row right-0 top-0 mr-8">
+		<a href="" target="_blank" class="text-md font-medium text-black-500 hover:underline">Notifications</a>
+		<a href="" target="_blank" class="text-md font-medium text-black-500 hover:underline">About</a>
+	</div>
+}
+
 templ CurrentUser(u model.UserPayload) {
-	<div id="current-user-container" hx-get="/get-user-payload" hx-trigger="every 5s" hx-swap="outerHTML">
-		<div class="user-profile">
-			<h1>{ u.Username }</h1>
-			<img src={ u.ProfilePicture } alt="Profile Picture"/>
-		</div>
-		<div class="currently-playing">
-			<h2>Currently Playing</h2>
-			<img src={ u.CurrentAlbumArt } alt="Album Art"/>
-			<h3>{ u.CurrentSongName } by { u.CurrentArtistName }</h3>
-			<h4>Album: { u.CurrentAlbumName }</h4>
+	<div hx-get="/get-user-payload" hx-trigger="every 5s" hx-swap="outerHTML" class="my-4">
+		<div class="currently-playing mt-4 p-4 bg-gray-100 rounded-lg shadow">
+			<div class="user-profile flex mb-2">
+				<img src={ u.ProfilePicture } alt="Profile Picture" class="w-16 h-16 rounded-full mr-4"/>
+				<div>
+					<h3 class="text-xl font-semibold">{ u.Username }</h3>
+					<p class="text-sm text-gray-600">Currently Playing:</p>
+				</div>
+			</div>
+			<div class="ml-20">
+				<img src={ u.CurrentAlbumArt } alt="Album Art" class="w-36 h-36 mb-2"/>
+				<p class="text-md font-medium">{ u.CurrentSongName }</p>
+				<p class="text-sm text-gray-600">by { u.CurrentArtistName }</p>
+				<p class="text-sm text-gray-600">Album: { u.CurrentAlbumName }</p>
+			</div>
 		</div>
 	</div>
 }
 
 templ Friends(friends []model.UserPayload) {
-	<div id="friends-container" hx-get="/get-friends" hx-trigger="every 5s" hx-swap="outerHTML">
+	<div id="friends-container" hx-get="/get-friends" hx-trigger="every 5s" hx-swap="outerHTML" class="my-4">
 		<div class="friends">
-			<h2>Friends</h2>
-			<ul class="currently-playing">
+			<h2 class="text-2xl font-bold mb-4">Friends</h2>
+			<ul class="space-y-4">
 				for _, friend := range friends {
-					<li>
-						<h3>{ friend.Username }</h3>
-						<img src={ friend.ProfilePicture } alt="Friend's Profile Picture"/>
-						<h3>Currently Playing: </h3>
-						<a href={ templ.URL(friend.CurrentSongUrl) } target="_blank">{ friend.CurrentSongName }</a>
-						<h3>by { friend.CurrentArtistName }</h3>
-						<h4>Album: { friend.CurrentAlbumName }</h4>
-						<img src={ friend.CurrentAlbumArt } alt="Friend's Album Art"/>
+					<li class="bg-gray-100 rounded-lg shadow p-4">
+						<div class="flex mb-2">
+							<img src={ friend.ProfilePicture } alt="Friend's Profile Picture" class="w-16 h-16 rounded-full mr-4"/>
+							<div>
+								<h3 class="text-xl font-semibold">{ friend.Username }</h3>
+								<p class="text-sm text-gray-600">Currently Playing:</p>
+							</div>
+						</div>
+						<div class="ml-20">
+							<img src={ friend.CurrentAlbumArt } alt="Friend's Album Art" class="w-36 h-36 mb-2"/>
+							<a href={ templ.URL(friend.CurrentSongUrl) } target="_blank" class="text-md font-medium text-blue-500 hover:underline">{ friend.CurrentSongName }</a>
+							<p class="text-sm text-gray-600">by { friend.CurrentArtistName }</p>
+							<p class="text-sm text-gray-600">Album: { friend.CurrentAlbumName }</p>
+						</div>
 					</li>
 				}
 			</ul>
