@@ -7,6 +7,10 @@ server/obj/
 *.a
 *.so
 
+# tmp dir
+server/tmp
+server/tmp/
+
 # Environment Variables
 *.env
 
