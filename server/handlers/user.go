@@ -24,6 +24,106 @@ type UserHandler struct {
 	LoginHandler  LoginHandler
 }
 
+func (h *UserHandler) LoadNotificationsHandler(c echo.Context) error {
+	db, err := sql.Open("sqlite3", "../db/wonder.db")
+	if err != nil {
+		log.Fatal("Couldn't open db:", err)
+	}
+	defer db.Close()
+
+	currentUser, err := h.getCurrentUser(c)
+	if err != nil {
+		return err
+	}
+
+	stmt, err := db.Prepare(`select secondary_id from friend_status where primary_id = ? and status = 'pending'`)
+	if err != nil {
+		log.Fatal("Couldn't prepare db statement:", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(currentUser.ID)
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		err := rows.Scan(&id)
+		if err != nil {
+			return err
+		}
+
+		ids = append(ids, id)
+	}
+
+	var pendingRequestsSlice []model.UserPayload
+	for id := range ids {
+		var userPayload model.UserPayload
+		stmt, err := db.Prepare(`select * from users where spotify_user_id = ?`)
+		if err != nil {
+			return err
+		}
+		defer stmt.Close()
+
+		err = stmt.QueryRow(id).Scan(&userPayload.ID, &userPayload.Username, &userPayload.ProfilePicture)
+		if err != nil {
+			return err
+		}
+
+		pendingRequestsSlice = append(pendingRequestsSlice, userPayload)
+	}
+
+	// Prepare the partial HTML snippet for search results
+	tmpl := template.New("pendingRequests")
+	tmpl, err = tmpl.Parse(`
+        <ul hx-swap-oob="true" id="pending-requests-dropdown" class="w-3/5">
+            {{range .}}
+                <li class="flex bg-gray-100 rounded-lg shadow p-4">
+                    <img src="{{.ProfilePicture}}" class="w-16 h-16 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
+                    <h3 class="mt-12">{{.Username}}</h3>
+					<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+					  Accept
+					</button>
+					<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+					  Decline
+					</button>
+                </li>
+            {{end}}
+        </ul>
+    `)
+
+	if err != nil {
+		return err
+	}
+
+	// Execute the template with the users slice to generate the HTML
+	return tmpl.Execute(c.Response().Writer, pendingRequestsSlice)
+}
+
+func (h *UserHandler) SendFriendRequestHandler(c echo.Context) error {
+	db, err := sql.Open("sqlite3", "../db/wonder.db")
+	if err != nil {
+		log.Fatal("Couldn't open db:", err)
+	}
+	defer db.Close()	
+	
+	stmt, err := db.Prepare(`insert into friend_status(primary_id, secondary_id, status) values(?,?,?)`)
+	if err != nil {
+		log.Fatal("Couldn't prepare db statement:", err)
+	}
+	defer stmt.Close()
+	
+	currentUser, err := h.getCurrentUser(c)
+	if err != nil {
+		return err
+	}
+	
+	//somehow get secondary_id
+	_, err := stmt.Exec(currentUser.ID, , "pending")
+	
+	//contruct a templ view for "friend request sent!"
+	return nil
+}
+
 func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 	db, err := sql.Open("sqlite3", "../db/wonder.db")
 	if err != nil {
