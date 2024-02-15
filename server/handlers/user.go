@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/diegoandino/wonder-go/model"
+	"github.com/diegoandino/wonder-go/views/notification"
 	"github.com/diegoandino/wonder-go/views/user"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo/v4"
@@ -24,10 +25,196 @@ type UserHandler struct {
 	LoginHandler  LoginHandler
 }
 
+func (h *UserHandler) LoadNotificationsHandler(c echo.Context) error {
+	db, err := sql.Open("sqlite3", "../db/wonder.db")
+	if err != nil {
+		log.Fatal("Couldn't open db:", err)
+	}
+	defer db.Close()
+
+	currentUser, err := h.getCurrentUser(c)
+	if err != nil {
+		return err
+	}
+
+	stmt, err := db.Prepare(`select primary_id from friend_status where secondary_id = ? and status = 'pending'`)
+	if err != nil {
+		log.Fatal("Couldn't prepare db statement:", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(currentUser.ID)
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		err := rows.Scan(&id)
+		if err != nil {
+			return err
+		}
+
+		ids = append(ids, id)
+	}
+
+	var pendingRequestsSlice []model.UserPayload
+	for _, id := range ids {
+		var userPayload model.UserPayload
+		stmt, err := db.Prepare(`select spotify_user_id, 
+										display_name, 
+										profile_picture, 
+										current_playing_song, 
+										current_album_art, 
+										current_album_name, 
+										current_artist_name, 
+										current_song_url 
+								from users where spotify_user_id = ?`)
+		if err != nil {
+			return err
+		}
+		defer stmt.Close()
+
+		err = stmt.QueryRow(id).Scan(&userPayload.ID, &userPayload.Username, &userPayload.ProfilePicture, &userPayload.CurrentSongName, &userPayload.CurrentAlbumArt, &userPayload.CurrentAlbumName, &userPayload.CurrentArtistName, &userPayload.CurrentSongUrl)
+		if err != nil {
+			return err
+		}
+
+		pendingRequestsSlice = append(pendingRequestsSlice, userPayload)
+	}
+
+	return render(c, notification.Show(pendingRequestsSlice))
+}
+
+func (h *UserHandler) RemoveFriendHandler(c echo.Context) error {
+	db, err := sql.Open("sqlite3", "../db/wonder.db")
+	if err != nil {
+		log.Fatal("Couldn't open db:", err)
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare(`delete from friends where (user_id_1=? and user_id_2=?) or (user_id_1=? and user_id_2=?)`)
+	if err != nil {
+		log.Fatal("Couldn't prepare db statement:", err)
+	}
+	defer stmt.Close()
+
+	currentUser, err := h.getCurrentUser(c)
+	if err != nil {
+		return err
+	}
+
+	// Retrieve the secondary_user_id from the request
+	secondaryUserID := c.FormValue("secondary_user_id")
+
+	_, err = stmt.Exec(currentUser.ID, secondaryUserID, secondaryUserID, currentUser.ID)
+
+	return err
+}
+
+func (h *UserHandler) SendFriendRequestHandler(c echo.Context) error {
+	db, err := sql.Open("sqlite3", "../db/wonder.db")
+	if err != nil {
+		log.Fatal("Couldn't open db:", err)
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare(`insert into friend_status(primary_id, secondary_id, status) values(?,?,?)`)
+	if err != nil {
+		log.Fatal("Couldn't prepare db statement:", err)
+	}
+	defer stmt.Close()
+
+	currentUser, err := h.getCurrentUser(c)
+	if err != nil {
+		return err
+	}
+
+	// Retrieve the secondary_user_id from the request
+	secondaryUserID := c.FormValue("secondary_user_id")
+
+	_, err = stmt.Exec(currentUser.ID, secondaryUserID, "pending")
+
+	sentFriendRequestAction := `
+        <script>
+            const addFriendBtn = document.getElementById('btn-add-friend');
+            addFriendBtn.textContent = 'Friend request sent successfully.';
+        </script>
+    `
+	return c.HTML(http.StatusOK, sentFriendRequestAction)
+}
+
+func (h *UserHandler) AcceptFriendRequestHandler(c echo.Context) error {
+	db, err := sql.Open("sqlite3", "../db/wonder.db")
+	if err != nil {
+		log.Fatal("Couldn't open db:", err)
+	}
+	defer db.Close()
+
+	insertIntoFriendsStmt, err := db.Prepare(`insert into friends(user_id_1, user_id_2) values (?, ?)`)
+	if err != nil {
+		log.Fatal("Couldn't prepare insert into friends db statement:", err)
+		return err
+	}
+	defer insertIntoFriendsStmt.Close()
+
+	updateFriendStatusStmt, err := db.Prepare(`update friend_status set status='accepted' where 
+											 (primary_id=? and secondary_id=?) or (primary_id=? and secondary_id=?)`)
+	if err != nil {
+		log.Fatal("Couldn't prepare update friend_status table db statement:", err)
+		return err
+	}
+	defer updateFriendStatusStmt.Close()
+
+	currentUser, err := h.getCurrentUser(c)
+	if err != nil {
+		return err
+	}
+
+	secondaryUserID := c.FormValue("secondary_user_id")
+
+	_, insertErr := insertIntoFriendsStmt.Exec(currentUser.ID, secondaryUserID)
+	if insertErr != nil {
+		return insertErr
+	}
+
+	_, updateErr := updateFriendStatusStmt.Exec(currentUser.ID, secondaryUserID, secondaryUserID, currentUser.ID)
+	if updateErr != nil {
+		return updateErr
+	}
+
+	return nil
+}
+
+func (h *UserHandler) DeclineFriendRequestHandler(c echo.Context) error {
+	db, err := sql.Open("sqlite3", "../db/wonder.db")
+	if err != nil {
+		log.Fatal("Couldn't open db:", err)
+	}
+	defer db.Close()
+
+	updateFriendStatusStmt, err := db.Prepare(`update friend_status set status='declined' where 
+											 (primary_id=? and secondary_id=?) or (primary_id=? and secondary_id=?)`)
+	if err != nil {
+		log.Fatal("Couldn't prepare db statement:", err)
+		return err
+	}
+	defer updateFriendStatusStmt.Close()
+
+	currentUser, err := h.getCurrentUser(c)
+	if err != nil {
+		return err
+	}
+
+	secondaryUserID := c.FormValue("secondary_user_id")
+	_, err = updateFriendStatusStmt.Exec(currentUser.ID, secondaryUserID, secondaryUserID, currentUser.ID)
+
+	return err
+}
+
 func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 	db, err := sql.Open("sqlite3", "../db/wonder.db")
 	if err != nil {
 		log.Fatal("Couldn't open db:", err)
+		return err
 	}
 	defer db.Close()
 
@@ -54,6 +241,7 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 	rows, err := stmt.Query(query, currentUser.ID)
 	if err != nil {
 		log.Fatal("Couldn't execute db query:", err)
+		return err
 	}
 	defer rows.Close()
 
@@ -69,15 +257,64 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 		users = append(users, user)
 	}
 
-	// Prepare the partial HTML snippet for search results
-	tmpl := template.New("searchResults")
-	tmpl, err = tmpl.Parse(`
+	alreadyFriendsStmt, err := db.Prepare(`
+        SELECT user_id_1, user_id_2 FROM FRIENDS 
+		WHERE user_id_1=? or user_id_2=?
+    `)
+	if err != nil {
+		log.Fatal("Couldn't prepare db statement:", err)
+		return err
+	}
+	defer alreadyFriendsStmt.Close()
+
+	friendRows, err := alreadyFriendsStmt.Query(currentUser.ID, currentUser.ID)
+	if err != nil {
+		return err
+	}
+	defer friendRows.Close()
+
+	for friendRows.Next() {
+		var id1 string
+		var id2 string
+		err := friendRows.Scan(&id1, &id2)
+		if err != nil {
+			return err
+		}
+
+		for _, searchResultUserPayload := range users {
+			if searchResultUserPayload.ID == id1 || searchResultUserPayload.ID == id2 {
+				alreadyFriendsTmpl := template.New("searchResults")
+				alreadyFriendsTmpl, err = alreadyFriendsTmpl.Parse(`
+					<ul hx-swap-oob="true" id="search-results-dropdown" class="w-full max-w-xs">
+						{{range .}}
+							<li class="flex bg-gray-100 rounded-lg shadow p-4">
+								<img src="{{.ProfilePicture}}" class="w-16 h-16 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
+								<h3 class="mt-12">{{.Username}}</h3>
+								<button id="btn-add-friend" hx-post="/remove-friend" hx-vals='{"secondary_user_id": "{{.ID}}"}' class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+									Remove Friend
+								</button>
+							</li>
+						{{end}}
+					</ul>
+				`)
+
+				if err != nil {
+					return err
+				}
+
+				return alreadyFriendsTmpl.Execute(c.Response().Writer, users)
+			}
+		}
+	}
+
+	addFriendTmpl := template.New("searchResults")
+	addFriendTmpl, err = addFriendTmpl.Parse(`
         <ul hx-swap-oob="true" id="search-results-dropdown" class="w-full max-w-xs">
             {{range .}}
                 <li class="flex bg-gray-100 rounded-lg shadow p-4">
                     <img src="{{.ProfilePicture}}" class="w-16 h-16 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
                     <h3 class="mt-12">{{.Username}}</h3>
-					<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+					<button id="btn-add-friend" hx-post="/send-friend-request" hx-vals='{"secondary_user_id": "{{.ID}}"}' class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
 					  Add Friend
 					</button>
                 </li>
@@ -89,8 +326,7 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 		return err
 	}
 
-	// Execute the template with the users slice to generate the HTML
-	return tmpl.Execute(c.Response().Writer, users)
+	return addFriendTmpl.Execute(c.Response().Writer, users)
 }
 
 func (h UserHandler) UserShowHandler(c echo.Context) error {
@@ -212,35 +448,47 @@ func (h UserHandler) getFriends(c echo.Context) ([]model.UserPayload, error) {
 		return nil, err
 	}
 
-	// Prepare the SELECT statement
 	stmt, err := db.Prepare(`
-        SELECT user_id_2 FROM FRIENDS 
-		WHERE user_id_1=?
+        SELECT user_id_1, user_id_2 FROM FRIENDS 
+		WHERE user_id_1=? or user_id_2=?
     `)
 	if err != nil {
 		log.Fatal("Couldn't prepare db statement:", err)
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(user.ID)
+	rows, err := stmt.Query(user.ID, user.ID)
 	if err != nil {
 		log.Fatal("Couldn't execute db query:", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var friendID string
-		if err := rows.Scan(&friendID); err != nil {
+		var id1 string
+		var id2 string
+		if err := rows.Scan(&id1, &id2); err != nil {
 			log.Fatal("Couldn't scan row:", err)
 		}
 
-		friendPayload, err := h.getFriendPayload(friendID)
-		if err != nil {
-			log.Printf("Couldn't get friend with ID %s: %v", friendID, err)
-			return nil, err
-		}
+		// if id's aren't equal, it's the friend id
+		// I know there's duped logic, will refactor later
+		if id1 != user.ID {
+			friendPayload, err := h.getFriendPayload(id1)
+			if err != nil {
+				log.Printf("Couldn't get friend with ID %s: %v", id1, err)
+				return nil, err
+			}
 
-		friends = append(friends, friendPayload)
+			friends = append(friends, friendPayload)
+		} else if id2 != user.ID {
+			friendPayload, err := h.getFriendPayload(id2)
+			if err != nil {
+				log.Printf("Couldn't get friend with ID %s: %v", id2, err)
+				return nil, err
+			}
+
+			friends = append(friends, friendPayload)
+		}
 	}
 
 	// Check for errors from iterating over rows

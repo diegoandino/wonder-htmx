@@ -66,6 +66,12 @@ func main() {
 	app.GET("/search-friends", userHandler.SearchUsersHandler)
 	app.GET("/get-friends", userHandler.GetFriendsHandler)
 	app.GET("/get-user-payload", userHandler.GetUserPayloadHandler)
+	app.GET("/notifications", userHandler.LoadNotificationsHandler)
+
+	app.POST("/send-friend-request", userHandler.SendFriendRequestHandler)
+	app.POST("/accept-friend-request", userHandler.AcceptFriendRequestHandler)
+	app.POST("/decline-friend-request", userHandler.DeclineFriendRequestHandler)
+	app.POST("/remove-friend", userHandler.RemoveFriendHandler)
 
 	log.Println("Starting server on :8080")
 	app.Logger.Fatal(app.Start(":8080"))

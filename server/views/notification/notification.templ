@@ -1,0 +1,45 @@
+package notification
+
+import (
+	"github.com/diegoandino/wonder-go/model"
+	"html/template"
+)
+
+const templateString = `
+    <head>
+        <script src="https://unpkg.com/htmx.org"></script>
+        <link href="/static/styles.css" rel="stylesheet"/>
+    </head>
+    <div id="notifications-container" class="my-4">
+        <div>
+            <h3>Notifications</h3>
+            <ul class="w-3/5">
+                {{range .}}
+                <li class="flex bg-gray-100 rounded-lg shadow p-4">
+                    <img src="{{.ProfilePicture}}" alt="Profile Picture" class="w-16 h-16 rounded-full mr-4"/>
+                    <div class="mt-12">
+                        <h3>{{.Username}}</h3>
+                        <button hx-post="/accept-friend-request" hx-vals='{"secondary_user_id": "{{.ID}}"}' class="bg-blue-500 hover:bg-blue-700 mr-4 text-white font-bold py-2 px-4 rounded">
+                            Accept
+                        </button>
+                        <button hx-post="/decline-friend-request" hx-vals='{"secondary_user_id": "{{.ID}}"}' class="bg-blue-500 hover:bg-blue-700 ml-4 text-white font-bold py-2 px-4 rounded">
+                            Decline
+                        </button>
+                    </div>
+                </li>
+                {{end}}
+            </ul>
+        </div>
+    </div>
+`
+
+var parsedTemplate = template.Must(template.New("accept_button").Parse(templateString))
+
+templ Show(notifications []model.UserPayload) {
+    <!DOCTYPE html>
+	<html>
+		<body>
+			@templ.FromGoHTML(parsedTemplate, notifications)
+		</body>
+	</html>
+}
