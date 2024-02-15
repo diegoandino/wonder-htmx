@@ -35,7 +35,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col items-center p-4\"><input type=\"text\" class=\"w-full max-w-xs p-2 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500\" name=\"query\" hx-get=\"/search-friends\" hx-target=\"#search-results-dropdown\" hx-trigger=\"keyup changed delay:500ms\" hx-indicator=\"#loading-indicator\" hx-empty=\"document.getElementById(&#39;search-results-dropdown&#39;).style.display=&#39;none&#39;;\" placeholder=\"Search friends...\"><div id=\"loading-indicator\" class=\"hidden\">Loading...</div><div id=\"search-results-dropdown\" class=\"search-results-dropdown hidden w-full max-w-xs mt-1 bg-white shadow-lg\"></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col items-center p-4\"><input type=\"text\" class=\"w-full max-w-xs p-2 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500\" name=\"query\" hx-get=\"/search-friends\" hx-target=\"#search-results-dropdown\" hx-trigger=\"keyup changed delay:500ms\" hx-indicator=\"#loading-indicator\" hx-empty=\"document.getElementById(&#39;search-results-dropdown&#39;).style.display=&#39;none&#39;;\" placeholder=\"Search friends...\"><div id=\"loading-indicator\" class=\"hidden\">Loading...</div><div id=\"search-results-dropdown\" class=\"search-results-dropdown hidden w-full max-w-xs mt-1 bg-white shadow-lg\"></div><div id=\"notification-popup\" class=\"fixed right-0 top-20 mr-4 max-w-xs hidden\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -67,7 +67,7 @@ func Navbar() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-row right-0 top-0 mr-8\"><a href=\"\" target=\"_blank\" class=\"text-md font-medium text-black-500 hover:underline\">Notifications</a> <a href=\"\" target=\"_blank\" class=\"text-md font-medium text-black-500 hover:underline\">About</a></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-row right-0 top-0 mr-8\"><a href=\"/notifications\" target=\"_blank\" class=\"text-md font-medium text-black-500 hover:underline\">Notifications</a></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
