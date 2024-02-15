@@ -191,7 +191,8 @@ func (h *UserHandler) DeclineFriendRequestHandler(c echo.Context) error {
 	}
 	defer db.Close()
 
-	updateFriendStatusStmt, err := db.Prepare(`update table friend_status set status='declined' where primary_id=? and secondary_id=?`)
+	updateFriendStatusStmt, err := db.Prepare(`update friend_status set status='declined' where 
+											 (primary_id=? and secondary_id=?) or (primary_id=? and secondary_id=?)`)
 	if err != nil {
 		log.Fatal("Couldn't prepare db statement:", err)
 		return err
@@ -204,7 +205,7 @@ func (h *UserHandler) DeclineFriendRequestHandler(c echo.Context) error {
 	}
 
 	secondaryUserID := c.FormValue("secondary_user_id")
-	_, err = updateFriendStatusStmt.Exec(currentUser.ID, secondaryUserID)
+	_, err = updateFriendStatusStmt.Exec(currentUser.ID, secondaryUserID, secondaryUserID, currentUser.ID)
 
 	return err
 }
