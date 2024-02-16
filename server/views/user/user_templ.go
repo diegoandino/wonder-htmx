@@ -12,6 +12,7 @@ import "bytes"
 
 import (
 	"github.com/diegoandino/wonder-go/model"
+	"html/template"
 )
 
 func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
@@ -27,7 +28,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<head><script src=\"https://unpkg.com/htmx.org\"></script><link href=\"/static/styles.css\" rel=\"stylesheet\"></head>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><script src=\"https://unpkg.com/htmx.org\"></script><script src=\"https://kit.fontawesome.com/166d97ea2f.js\" crossorigin=\"anonymous\"></script><link href=\"/static/styles.css\" rel=\"stylesheet\"></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -35,7 +36,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col items-center p-4\"><input type=\"text\" class=\"w-full max-w-xs p-2 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500\" name=\"query\" hx-get=\"/search-friends\" hx-target=\"#search-results-dropdown\" hx-trigger=\"keyup changed delay:500ms\" hx-indicator=\"#loading-indicator\" hx-empty=\"document.getElementById(&#39;search-results-dropdown&#39;).style.display=&#39;none&#39;;\" placeholder=\"Search friends...\"><div id=\"loading-indicator\" class=\"hidden\">Loading...</div><div id=\"search-results-dropdown\" class=\"search-results-dropdown hidden w-full max-w-xs mt-1 bg-white shadow-lg\"></div><div id=\"notification-popup\" class=\"fixed right-0 top-20 mr-4 max-w-xs hidden\"></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"pt-10\"><div class=\"flex flex-col items-center px-4 py-4 w-screen relative\"><i class=\"fas fa-search absolute left-6 bottom-7 pointer-events-none\" style=\"z-index: 10;\"></i> <input type=\"text\" class=\"w-full pl-10 p-2 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500\" name=\"query\" hx-get=\"/search-friends\" hx-target=\"#search-results-dropdown\" hx-trigger=\"keyup changed delay:500ms\" hx-indicator=\"#loading-indicator\" hx-empty=\"document.getElementById(&#39;search-results-dropdown&#39;).style.display=&#39;none&#39;;\" placeholder=\"Search\"><div id=\"loading-indicator\" class=\"hidden\">Loading...</div><div id=\"search-results-dropdown\" class=\"search-results-dropdown hidden w-full max-w-xs mt-1 bg-white shadow-lg\"></div><div id=\"notification-popup\" class=\"fixed right-0 top-20 mr-4 max-w-xs hidden\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -44,6 +45,10 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = Friends(friends).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -67,7 +72,7 @@ func Navbar() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-row right-0 top-0 mr-8\"><a href=\"/notifications\" target=\"_blank\" class=\"text-md font-medium text-black-500 hover:underline\">Notifications</a></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"fixed top-4 right-4 z-10\"><div class=\"bell-icon\"><a href=\"/notifications\" target=\"_blank\" class=\"flex items-center justify-center\"><i class=\"fas fa-bell\" style=\"color: white;\"></i></a></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -77,6 +82,29 @@ func Navbar() templ.Component {
 		return templ_7745c5c3_Err
 	})
 }
+
+const currentUserTemplate = `
+    <div hx-get="/get-user-payload" hx-trigger="every 5s" hx-swap="outerHTML" class="my-4">
+        <div class="currently-playing mt-4 mr-4 ml-4 p-4 rounded-lg shadow-md relative overflow-hidden">
+            <div class="absolute inset-0 -z-10 bg-cover bg-center blur-xl" style="background-image: url('{{.CurrentAlbumArt}}');"></div>
+            <div class="user-profile flex mb-2 z-10 relative">
+                <img src="{{.ProfilePicture}}" alt="Profile Picture" class="w-16 h-16 rounded-full mr-4"/>
+                <div>
+                    <h3 class="nunito-bold text-xl text-white">{{.Username}}</h3>
+                    <p class="text-sm text-white nunito-medium-italic">Currently Playing</p>
+                </div>
+            </div>
+            <div class="ml-20 z-10 relative">
+                <img src="{{.CurrentAlbumArt}}" alt="Album Art" class="w-36 h-36 mb-2"/>
+                <p class="text-md font-medium text-white nunito-bold-italic">{{.CurrentSongName}}</p>
+                <p class="text-sm text-white nunito-medium">by {{.CurrentArtistName}}</p>
+                <p class="text-sm text-white nunito-semibold">{{.CurrentAlbumName}}</p>
+            </div>
+        </div>
+    </div>
+`
+
+var parsedCurrentUserTemplate = template.Must(template.New("current_user_template").Parse(currentUserTemplate))
 
 func CurrentUser(u model.UserPayload) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -91,75 +119,7 @@ func CurrentUser(u model.UserPayload) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div hx-get=\"/get-user-payload\" hx-trigger=\"every 5s\" hx-swap=\"outerHTML\" class=\"my-4\"><div class=\"currently-playing mt-4 p-4 bg-gray-100 rounded-lg shadow\"><div class=\"user-profile flex mb-2\"><img src=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(u.ProfilePicture))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" alt=\"Profile Picture\" class=\"w-16 h-16 rounded-full mr-4\"><div><h3 class=\"text-xl font-semibold\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(u.Username)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 44, Col: 51}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h3><p class=\"text-sm text-gray-600\">Currently Playing:</p></div></div><div class=\"ml-20\"><img src=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(u.CurrentAlbumArt))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" alt=\"Album Art\" class=\"w-36 h-36 mb-2\"><p class=\"text-md font-medium\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(u.CurrentSongName)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 50, Col: 54}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><p class=\"text-sm text-gray-600\">by ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(u.CurrentArtistName)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 51, Col: 61}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><p class=\"text-sm text-gray-600\">Album: ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(u.CurrentAlbumName)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 52, Col: 64}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></div></div></div>")
+		templ_7745c5c3_Err = templ.FromGoHTML(parsedCurrentUserTemplate, u).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -170,6 +130,44 @@ func CurrentUser(u model.UserPayload) templ.Component {
 	})
 }
 
+const friendsTemplate = `
+    <div id="friends-container" hx-get="/get-friends" hx-trigger="every 5s" hx-swap="outerHTML" class="my-4 mt-12">
+        <div class="friends mr-4 ml-4">
+            <h2 class="text-2xl font-bold mb-4 text-white" style="text-shadow: 2px 2px 2px #53a765;">Friends</h2>
+            <ul class="space-y-4">
+                {{range .}}
+                <li class="rounded-lg shadow p-4 relative overflow-hidden">
+                    <!-- Background Album Art (Blurred) -->
+                    <div class="absolute inset-0 -z-10 shadow-md bg-cover bg-center blur-xl" style="background-image: url('{{.CurrentAlbumArt}}');"></div>
+                    
+                    <!-- Content Container -->
+                    <div class="relative z-10 flex mb-2">
+                        <!-- Profile Picture -->
+                        <img src="{{.ProfilePicture}}" alt="Friend's Profile Picture" class="w-16 h-16 rounded-full mr-4"/>
+                        <div>
+                            <!-- Username -->
+                            <h3 class="text-xl font-semibold text-white nunito-bold">{{.Username}}</h3>
+                            <p class="text-sm text-white nunito-medium">Currently Playing</p>
+                        </div>
+                    </div>
+
+                    <!-- Album Art Beside Text -->
+                    <div class="relative z-10 ml-20">
+                        <img src="{{.CurrentAlbumArt}}" alt="Friend's Album Art" class="w-36 h-36 mb-2"/>
+                        <!-- Song Name and Artist -->
+                        <a href="{{.CurrentSongUrl}}" target="_blank" class="text-md font-medium text-white hover:underline nunito-bold-italic">{{.CurrentSongName}}</a>
+                        <p class="text-sm text-white nunito-medium">by {{.CurrentArtistName}}</p>
+                        <p class="text-sm text-white nunito-semibold">{{.CurrentAlbumName}}</p>
+                    </div>
+                </li>
+                {{end}}
+            </ul>
+        </div>
+    </div>
+`
+
+var parsedFriendsTemplate = template.Must(template.New("friends_template").Parse(friendsTemplate))
+
 func Friends(friends []model.UserPayload) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -178,99 +176,12 @@ func Friends(friends []model.UserPayload) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var8 == nil {
-			templ_7745c5c3_Var8 = templ.NopComponent
+		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var4 == nil {
+			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"friends-container\" hx-get=\"/get-friends\" hx-trigger=\"every 5s\" hx-swap=\"outerHTML\" class=\"my-4\"><div class=\"friends\"><h2 class=\"text-2xl font-bold mb-4\">Friends</h2><ul class=\"space-y-4\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		for _, friend := range friends {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li class=\"bg-gray-100 rounded-lg shadow p-4\"><div class=\"flex mb-2\"><img src=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(friend.ProfilePicture))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" alt=\"Friend&#39;s Profile Picture\" class=\"w-16 h-16 rounded-full mr-4\"><div><h3 class=\"text-xl font-semibold\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(friend.Username)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 68, Col: 59}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h3><p class=\"text-sm text-gray-600\">Currently Playing:</p></div></div><div class=\"ml-20\"><img src=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(friend.CurrentAlbumArt))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" alt=\"Friend&#39;s Album Art\" class=\"w-36 h-36 mb-2\"> <a href=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var10 templ.SafeURL = templ.URL(friend.CurrentSongUrl)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var10)))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" target=\"_blank\" class=\"text-md font-medium text-blue-500 hover:underline\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(friend.CurrentSongName)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 74, Col: 150}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a><p class=\"text-sm text-gray-600\">by ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(friend.CurrentArtistName)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 75, Col: 69}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><p class=\"text-sm text-gray-600\">Album: ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(friend.CurrentAlbumName)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/user/user.templ`, Line: 76, Col: 72}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></div></li>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</ul></div></div>")
+		templ_7745c5c3_Err = templ.FromGoHTML(parsedFriendsTemplate, friends).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
