@@ -28,7 +28,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><script src=\"https://unpkg.com/htmx.org\"></script><script src=\"https://kit.fontawesome.com/166d97ea2f.js\" crossorigin=\"anonymous\"></script><link href=\"/static/styles.css\" rel=\"stylesheet\"></head>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><script src=\"https://unpkg.com/htmx.org\"></script><script src=\"https://kit.fontawesome.com/166d97ea2f.js\" crossorigin=\"anonymous\"></script><link href=\"/static/styles.css\" rel=\"stylesheet\"></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
