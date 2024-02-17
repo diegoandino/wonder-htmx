@@ -285,12 +285,13 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 			if searchResultUserPayload.ID == id1 || searchResultUserPayload.ID == id2 {
 				alreadyFriendsTmpl := template.New("searchResults")
 				alreadyFriendsTmpl, err = alreadyFriendsTmpl.Parse(`
-					<ul hx-swap-oob="true" id="search-results-dropdown" class="w-full max-w-xs">
+					<ul hx-swap-oob="true" id="search-results-dropdown" class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
 						{{range .}}
-							<li class="flex bg-gray-100 rounded-lg shadow p-4">
-								<img src="{{.ProfilePicture}}" class="w-16 h-16 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
-								<h3 class="mt-12">{{.Username}}</h3>
-								<button id="btn-add-friend" hx-post="/remove-friend" hx-vals='{"secondary_user_id": "{{.ID}}"}' class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+							<li class="flex py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500">
+								<img src="{{.ProfilePicture}}" class="w-12 h-12 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
+								<h3 class="nunito-medium mt-3 mr-3">{{.Username}}</h3>
+								<button id="btn-add-friend" hx-post="/remove-friend" hx-vals='{"secondary_user_id": "{{.ID}}"}' 
+								class="bg-blue-500 nunito-medium hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
 									Remove Friend
 								</button>
 							</li>
