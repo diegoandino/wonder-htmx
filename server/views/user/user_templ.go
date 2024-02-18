@@ -36,7 +36,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"pt-10\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -92,14 +92,16 @@ func Navbar() templ.Component {
 }
 
 const currentUserTemplate = `
-    <div hx-get="/get-user-payload" hx-trigger="every 5s" hx-swap="outerHTML" class="my-4">
-        <div class="currently-playing mt-4 mr-4 ml-4 p-4 rounded-lg shadow-md relative overflow-hidden">
+    <div hx-get="/get-user-payload" hx-trigger="every 5s" hx-swap="outerHTML">
+        <div class="currently-playing mt-4 mb-10 mr-4 ml-4 p-4 rounded-lg shadow-md relative overflow-hidden">
             <div class="absolute inset-0 -z-10 bg-cover bg-center blur-xl" style="background-image: url('{{.CurrentAlbumArt}}');"></div>
             <div class="user-profile flex mb-2 z-10 relative">
                 <img src="{{.ProfilePicture}}" alt="Profile Picture" class="w-16 h-16 rounded-full mr-4"/>
                 <div>
-                    <h3 class="nunito-bold text-xl text-white">{{.Username}}</h3>
-                    <p class="text-sm text-white nunito-medium-italic">Currently Playing</p>
+                    <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
+                        <h3 class="ml-1 nunito-bold text-xl text-white">{{.Username}}</h3>
+                        <p class="ml-1 text-sm text-white nunito-medium-italic">Currently Playing</p>
+                    </div>
                 </div>
             </div>
             <div class="ml-20 z-10 relative">
@@ -141,8 +143,13 @@ func CurrentUser(u model.UserPayload) templ.Component {
 }
 
 const friendsTemplate = `
-    <div id="friends-container" hx-get="/get-friends" hx-trigger="every 5s" hx-swap="outerHTML" class="my-4 mt-12">
-        <div class="friends mr-4 ml-4">
+<div id="friends-container" hx-get="/get-friends" hx-trigger="every 5s" hx-swap="outerHTML" class="my-4 mt-12 relative">
+    <div class="ml-4 mr-4 rounded-lg backdrop-blur-lg overflow-hidden">
+        <!-- Pseudo-element for semi-transparent background -->
+        <div class="absolute inset-0 bg-black bg-opacity-20 z-[-1]"></div>
+        
+        <!-- Friends content -->
+        <div class="friends p-4">
             <h2 class="text-2xl font-bold mb-4 text-white" style="text-shadow: 2px 2px 2px #53a765;">Friends</h2>
             <ul class="space-y-4">
                 {{range .}}
@@ -155,26 +162,30 @@ const friendsTemplate = `
                         <!-- Profile Picture -->
                         <img src="{{.ProfilePicture}}" alt="Friend's Profile Picture" class="w-16 h-16 rounded-full mr-4"/>
                         <div>
-                            <!-- Username -->
-                            <h3 class="text-xl font-semibold text-white nunito-bold">{{.Username}}</h3>
-                            <p class="text-sm text-white nunito-medium-italic">Currently Playing</p>
+                            <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
+                                <!-- Username -->
+                                <h3 class="ml-1 text-xl font-semibold text-white nunito-bold">{{.Username}}</h3>
+                                <p class="ml-1 text-sm text-white nunito-medium-italic">Currently Playing</p>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Album Art Beside Text -->
                     <div class="relative z-10 ml-20">
                         <img src="{{.CurrentAlbumArt}}" alt="Friend's Album Art" class="w-36 h-36 mb-2"/>
-                        <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
+                         <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
                             <a href="{{.CurrentSongUrl}}" target="_blank" class="text-md text-white hover:underline nunito-bold-italic"><p class="text-center">{{.CurrentSongName}}</p></a>
                             <p class="text-sm text-white text-center nunito-medium">by {{.CurrentArtistName}}</p>
                             <p class="text-sm text-white text-center nunito-semibold">{{.CurrentAlbumName}}</p>
-                        </div>
+                        </div> 
                     </div>
                 </li>
                 {{end}}
             </ul>
         </div>
     </div>
+</div>
+
 `
 
 var parsedFriendsTemplate = template.Must(template.New("friends_template").Parse(friendsTemplate))

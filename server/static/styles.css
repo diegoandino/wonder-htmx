@@ -613,6 +613,10 @@ video {
   z-index: 50;
 }
 
+.z-\[-1\] {
+  z-index: -1;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -621,6 +625,10 @@ video {
 .my-4 {
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+
+.mb-10 {
+  margin-bottom: 2.5rem;
 }
 
 .mb-2 {
@@ -637,6 +645,10 @@ video {
 
 .me-1 {
   margin-inline-end: 0.25rem;
+}
+
+.ml-1 {
+  margin-left: 0.25rem;
 }
 
 .ml-20 {
@@ -914,10 +926,6 @@ video {
 
 .ps-3 {
   padding-inline-start: 0.75rem;
-}
-
-.pt-10 {
-  padding-top: 2.5rem;
 }
 
 .text-center {

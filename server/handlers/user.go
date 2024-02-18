@@ -334,6 +334,7 @@ func (h UserHandler) UserShowHandler(c echo.Context) error {
 	// Check if logged in
 	token, valid, err := h.LoginHandler.ValidateSession(c)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -355,16 +356,19 @@ func (h UserHandler) UserShowHandler(c echo.Context) error {
 
 	userPayload, err := h.getUserPayload(c, &client)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
 	dbErr := h.upsertUserDB(c, userPayload)
 	if dbErr != nil {
+		fmt.Println(err)
 		return dbErr
 	}
 
 	friends, friendErr := h.getFriends(c)
 	if friendErr != nil {
+		fmt.Println(err)
 		return err
 	}
 
