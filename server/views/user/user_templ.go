@@ -59,7 +59,7 @@ func Show(u model.UserPayload, friends []model.UserPayload) templ.Component {
 	})
 }
 
-func Navbar() templ.Component {
+func SmallDropdown() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -72,7 +72,31 @@ func Navbar() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"border-gray-200 dark:bg-gray-900 z-50 bg-transparent backdrop-filter backdrop-blur-xl\"><div class=\"max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4\"><a href=\"/home\" class=\"flex items-center space-x-3 rtl:space-x-reverse\"><img src=\"https://flowbite.com/docs/images/logo.svg\" class=\"h-8\" alt=\"Flowbite Logo\"> <span class=\"self-center text-2xl font-semibold whitespace-nowrap dark:text-white\">Wonder</span></a><div class=\"flex md:order-2\"><button type=\"button\" data-collapse-toggle=\"navbar-search\" aria-controls=\"navbar-search\" aria-expanded=\"false\" class=\"md:hidden text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 me-1\"><svg class=\"w-5 h-5\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 20 20\"><path stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z\"></path></svg> <span class=\"sr-only\">Search</span></button><div class=\"relative hidden md:block\"><div class=\"absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none\"><svg class=\"w-4 h-4 text-gray-500 dark:text-gray-400\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 20 20\"><path stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z\"></path></svg> <span class=\"sr-only\">Search icon</span></div><input type=\"text\" id=\"search-navbar\" class=\"block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\" name=\"query\" hx-get=\"/search-friends\" hx-target=\"#search-results-dropdown\" hx-trigger=\"keyup\" hx-indicator=\"#loading-indicator\" hx-empty=\"document.getElementById(&#39;search-results-dropdown&#39;).style.display=&#39;none&#39;;\" placeholder=\"Search...\" oninput=\"hideIfEmpty()\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button id=\"dropdownMenuIconHorizontalButton\" data-dropdown-toggle=\"dropdownDotsHorizontal\" class=\"inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600\" type=\"button\"><svg class=\"w-5 h-5\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\" viewBox=\"0 0 16 3\"><path d=\"M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z\"></path></svg></button><!-- Dropdown menu --><div id=\"dropdownDotsHorizontal\" class=\"z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600\"><ul class=\"py-2 text-sm text-gray-700 dark:text-gray-200\" aria-labelledby=\"dropdownMenuIconHorizontalButton\"><li><a href=\"#\" class=\"block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white\">Dashboard</a></li><li><a href=\"#\" class=\"block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white\">Settings</a></li><li><a href=\"#\" class=\"block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white\">Earnings</a></li></ul><div class=\"py-2\"><a href=\"#\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white\">Separated link</a></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !templ_7745c5c3_IsBuffer {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func Navbar() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			templ_7745c5c3_Buffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var3 == nil {
+			templ_7745c5c3_Var3 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"border-gray-200 dark:bg-gray-900 z-50 bg-transparent backdrop-filter backdrop-blur-xl\"><div class=\"max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4\"><a href=\"/home\" class=\"flex items-center space-x-3 rtl:space-x-reverse\"><img src=\"https://flowbite.com/docs/images/logo.svg\" class=\"h-8\" alt=\"Flowbite Logo\"> <span class=\"self-center text-2xl font-semibold whitespace-nowrap dark:text-white\">Wonder</span></a><div class=\"flex md:order-2\"><button type=\"button\" data-collapse-toggle=\"navbar-search\" aria-controls=\"navbar-search\" aria-expanded=\"false\" class=\"md:hidden text-gray-500 dark:text-gray-400 \n                        hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 me-1\"><svg class=\"w-5 h-5\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 20 20\"><path stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z\"></path></svg> <span class=\"sr-only\">Search</span></button><div class=\"relative hidden md:block\"><div class=\"absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none\"><svg class=\"w-4 h-4 text-gray-500 dark:text-gray-400\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 20 20\"><path stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z\"></path></svg> <span class=\"sr-only\">Search icon</span></div><input type=\"text\" id=\"search-navbar\" class=\"block w-full p-2 ps-10 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 \n                            dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\" name=\"query\" hx-get=\"/search-friends\" hx-target=\"#search-results-dropdown\" hx-trigger=\"keyup\" hx-indicator=\"#loading-indicator\" hx-empty=\"document.getElementById(&#39;search-results-dropdown&#39;).style.display=&#39;none&#39;;\" placeholder=\"Search...\" oninput=\"hideIfEmpty()\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -105,7 +129,7 @@ const currentUserTemplate = `
                 </div>
             </div>
             <div class="ml-20 z-10 relative">
-                <img src="{{.CurrentAlbumArt}}" alt="Album Art" class="w-36 h-36 mb-2"/>
+                <img src="{{.CurrentAlbumArt}}" alt="Album Art" class="w-36 h-36 mb-2 rounded"/>
                 <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
                     <p class="text-md text-center text-white nunito-bold-italic">{{.CurrentSongName}}</p>
                     <p class="text-sm text-center text-white nunito-medium">by {{.CurrentArtistName}}</p>
@@ -126,9 +150,9 @@ func CurrentUser(u model.UserPayload) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var3 == nil {
-			templ_7745c5c3_Var3 = templ.NopComponent
+		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var4 == nil {
+			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templ.FromGoHTML(parsedCurrentUserTemplate, u).Render(ctx, templ_7745c5c3_Buffer)
@@ -172,7 +196,7 @@ const friendsTemplate = `
 
                     <!-- Album Art Beside Text -->
                     <div class="relative z-10 ml-20">
-                        <img src="{{.CurrentAlbumArt}}" alt="Friend's Album Art" class="w-36 h-36 mb-2"/>
+                        <img src="{{.CurrentAlbumArt}}" alt="Friend's Album Art" class="w-36 h-36 mb-2 rounded"/>
                          <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
                             <a href="{{.CurrentSongUrl}}" target="_blank" class="text-md text-white hover:underline nunito-bold-italic"><p class="text-center">{{.CurrentSongName}}</p></a>
                             <p class="text-sm text-white text-center nunito-medium">by {{.CurrentArtistName}}</p>
@@ -198,9 +222,9 @@ func Friends(friends []model.UserPayload) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var4 == nil {
-			templ_7745c5c3_Var4 = templ.NopComponent
+		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var5 == nil {
+			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templ.FromGoHTML(parsedFriendsTemplate, friends).Render(ctx, templ_7745c5c3_Buffer)
@@ -222,12 +246,12 @@ func NotificationBell() templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var5 == nil {
-			templ_7745c5c3_Var5 = templ.NopComponent
+		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var6 == nil {
+			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"/notifications\" class=\"relative items-center inline-flex\"><button id=\"notificationButton\" class=\"relative inline-flex items-center text-sm font-medium text-center text-gray-500 hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400\" type=\"button\"><svg class=\"w-5 h-5\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\" viewBox=\"0 0 14 20\"><path d=\"M12.133 10.632v-1.8A5.406 5.406 0 0 0 7.979 3.57.946.946 0 0 0 8 3.464V1.1a1 1 0 0 0-2 0v2.364a.946.946 0 0 0 .021.106 5.406 5.406 0 0 0-4.154 5.262v1.8C1.867 13.018 0 13.614 0 14.807 0 15.4 0 16 .538 16h12.924C14 16 14 15.4 14 14.807c0-1.193-1.867-1.789-1.867-4.175ZM3.823 17a3.453 3.453 0 0 0 6.354 0H3.823Z\"></path></svg><div class=\"absolute block w-3 h-3 bg-red-500 border-2 border-white rounded-full -top-0.5 start-2.5 dark:border-gray-900\"></div></button></a>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"/notifications\" class=\"relative items-center inline-flex\"><button id=\"notificationButton\" class=\"relative inline-flex items-center text-sm font-medium text-center text-gray-500 hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400\" type=\"button\"><svg class=\"w-6 h-6\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\" viewBox=\"0 0 14 20\"><path d=\"M12.133 10.632v-1.8A5.406 5.406 0 0 0 7.979 3.57.946.946 0 0 0 8 3.464V1.1a1 1 0 0 0-2 0v2.364a.946.946 0 0 0 .021.106 5.406 5.406 0 0 0-4.154 5.262v1.8C1.867 13.018 0 13.614 0 14.807 0 15.4 0 16 .538 16h12.924C14 16 14 15.4 14 14.807c0-1.193-1.867-1.789-1.867-4.175ZM3.823 17a3.453 3.453 0 0 0 6.354 0H3.823Z\"></path></svg><div class=\"absolute block w-3 h-3 bg-red-500 border-2 border-white rounded-full -top-0.5 start-2.5 dark:border-gray-900\"></div></button></a>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
