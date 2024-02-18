@@ -7,7 +7,7 @@ import (
 
 templ Show(u model.UserPayload, friends []model.UserPayload) {
 	<!DOCTYPE html>
-	<html>
+	<html class="scroll-smooth">
 		<head>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<script src="https://unpkg.com/htmx.org"></script>
@@ -27,7 +27,7 @@ templ Show(u model.UserPayload, friends []model.UserPayload) {
 templ Navbar() {
 	<nav class="border-gray-200 dark:bg-gray-900 z-50 bg-transparent backdrop-filter backdrop-blur-xl">
 		<div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-			<a href="https://flowbite.com/" class="flex items-center space-x-3 rtl:space-x-reverse">
+			<a href="/home" class="flex items-center space-x-3 rtl:space-x-reverse">
 				<img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo"/>
 				<span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Wonder</span>
 			</a>
@@ -52,10 +52,11 @@ templ Navbar() {
 						name="query"
 						hx-get="/search-friends"
 						hx-target="#search-results-dropdown"
-						hx-trigger="keyup changed delay:500ms"
+						hx-trigger="keyup"
 						hx-indicator="#loading-indicator"
 						hx-empty="document.getElementById('search-results-dropdown').style.display='none';"
 						placeholder="Search..."
+						oninput="hideIfEmpty()"
 					/>
 				</div>
 				@NotificationBell()
@@ -74,15 +75,25 @@ templ Navbar() {
 						name="query"
 						hx-get="/search-friends"
 						hx-target="#search-results-dropdown"
-						hx-trigger="keyup changed delay:500ms"
-						hx-empty="document.getElementById('search-results-dropdown').style.display='none';"
+						hx-trigger="keyup"
 						placeholder="Search users..."
+						oninput="hideIfEmpty()"
 					/>
 				</div>
 				<div id="search-results-dropdown" class="hidden" hx-swap-oob="delete"></div>
 			</div>
 		</div>
 	</nav>
+	<script>
+		function hideIfEmpty() {
+			var input = document.getElementById('search-navbar').value;
+			var inputLength = input.length;
+			console.log(input);
+			if (inputLength === 0) {
+				document.getElementById('search-results-dropdown').style.display = 'none';
+			}
+		}
+	</script>
 }
 
 const currentUserTemplate = `

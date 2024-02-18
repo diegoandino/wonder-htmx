@@ -11,9 +11,8 @@ body {
   /* 2 */
 
   background: linear-gradient(#191414, #1db954, #ffff 75%);
-  height: 100vh;
+  min-height: 100vh;
   position: relative;
-  overflow: hidden;
 }
 
 body::before {
