@@ -213,133 +213,74 @@ func (h *UserHandler) DeclineFriendRequestHandler(c echo.Context) error {
 func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 	db, err := sql.Open("sqlite3", "../db/wonder.db")
 	if err != nil {
-		log.Fatal("Couldn't open db:", err)
-		return err
+		log.Printf("Couldn't open db: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database connection failed")
 	}
 	defer db.Close()
 
 	query := c.QueryParam("query")
-	fmt.Println("Query: ", query)
-
-	if query == "" {
-		return c.HTML(http.StatusOK, "")
-	}
-
-	stmt, err := db.Prepare(`select spotify_user_id, display_name, profile_picture from users 
-				where display_name like ?
-				and spotify_user_id != ?`)
-	if err != nil {
-		log.Fatal("Couldn't prepare db statement:", err)
-	}
-	defer stmt.Close()
-
 	currentUser, err := h.getCurrentUser(c)
 	if err != nil {
 		return err
 	}
 
-	rows, err := stmt.Query(query, currentUser.ID)
-	if err != nil {
-		log.Fatal("Couldn't execute db query:", err)
-		return err
-	}
-	defer rows.Close()
-
-	var users []model.UserPayload
-	for rows.Next() {
-		var user model.UserPayload
-		err := rows.Scan(&user.ID, &user.Username, &user.ProfilePicture)
-		if err != nil {
-			return err
-		}
-
-		fmt.Println("user: ", user)
-		users = append(users, user)
+	if query == "" {
+		return c.HTML(http.StatusOK, "")
 	}
 
-	alreadyFriendsStmt, err := db.Prepare(`
-        SELECT user_id_1, user_id_2 FROM FRIENDS 
-		WHERE user_id_1=? or user_id_2=?
-    `)
-	if err != nil {
-		log.Fatal("Couldn't prepare db statement:", err)
-		return err
-	}
-	defer alreadyFriendsStmt.Close()
-
-	friendRows, err := alreadyFriendsStmt.Query(currentUser.ID, currentUser.ID)
-	if err != nil {
-		return err
-	}
-	defer friendRows.Close()
-
-	for friendRows.Next() {
-		var id1 string
-		var id2 string
-		err := friendRows.Scan(&id1, &id2)
-		if err != nil {
-			return err
-		}
-
-		for _, searchResultUserPayload := range users {
-			if searchResultUserPayload.ID == id1 || searchResultUserPayload.ID == id2 {
-				alreadyFriendsTmpl := template.New("searchResults")
-				alreadyFriendsTmpl, err = alreadyFriendsTmpl.Parse(`
-					<ul hx-swap-oob="true" id="search-results-dropdown" class="search-results flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-						{{range .}}
-							<li id="user-search-result" class="flex py-2 px-3 text-white bg-black rounded shadow-lg md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500">
-								<img src="{{.ProfilePicture}}" class="w-12 h-12 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
-								<h3 class="nunito-bold mt-3 mr-3">{{.Username}}</h3>
-								<button 
-								id="btn-add-friend" 
-								hx-post="/remove-friend" 
-								hx-vals='{"secondary_user_id": "{{.ID}}"}' 
-								hx-on:click="document.getElementById('user-search-result').style.display = 'none'; document.getElementById('search-results-dropdown').style.display = 'none';"
-								class="bg-blue-500 nunito-bold text-sm hover:bg-blue-700 text-white py-2 px-4 rounded">
-									Remove Friend
-								</button>
-							</li>
-						{{end}}
-					</ul>
-				`)
-
-				if err != nil {
-					return err
-				}
-
-				return alreadyFriendsTmpl.Execute(c.Response().Writer, users)
-			}
-		}
-	}
-
-	addFriendTmpl := template.New("searchResults")
-	addFriendTmpl, err = addFriendTmpl.Parse(`
-        <ul hx-swap-oob="true" id="search-results-dropdown" class="flex flex-col p-4 md:p-0 mt-4 font-medium 
-		rounded-lg bg-black bg-opacity-40 backdrop-blur-lg rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
-            {{range .}}
-				<div class="bg-black bg-opacity-20 backdrop-blur-lg rounded">
-					<li class="flex py-2 px-3 text-white rounded md:bg-transparent md:p-0 md:dark:text-blue-500">
-						<img src="{{.ProfilePicture}}" class="w-12 h-12 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
-						<h3 class="nunito-semibold mt-3 mr-3">{{.Username}}</h3>
-						<button 
-						id="btn-add-friend" 
-						hx-post="/send-friend-request" 
-						hx-vals='{"secondary_user_id": "{{.ID}}"}'
-						hx-on:click="document.getElementById('search-results-dropdown').style.display = 'none';"
-						class="bg-white nunito-semibold hover:bg-gray-200 text-black text-md py-2 px-4 rounded">
-						  Add Friend
-						</button>
-					</li>
-				</div>
-            {{end}}
-        </ul>
-    `)
-
+	// Fetch potential friends
+	potentialFriends, err := fetchPotentialFriends(db, query+"%", currentUser.ID)
 	if err != nil {
 		return err
 	}
 
-	return addFriendTmpl.Execute(c.Response().Writer, users)
+	// Fetch already friends map
+	friendsMap, err := fetchFriendsMap(db, currentUser.ID)
+	if err != nil {
+		return err
+	}
+
+	// Prepare users for the template
+	var users []model.UserPayloadTemplate
+	for _, user := range potentialFriends {
+		alreadyFriends := friendsMap[user.ID]
+		users = append(users, model.UserPayloadTemplate{
+			UserPayload:   user,
+			AlreadyFriend: alreadyFriends,
+		})
+	}
+
+	// Execute the template with the users slice
+	searchResultsTmpl := template.New("searchResults")
+	const searchResultsTemplate = `
+    <ul hx-swap-oob="true" id="search-results-dropdown" class="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg bg-black bg-opacity-40 backdrop-blur-lg 
+	rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">		
+	{{range $i, $v := .}}
+		<div class="bg-black bg-opacity-20 backdrop-blur-lg rounded mb-2">
+            <li id="user-search-result{{$i}}" class="flex py-2 px-3 text-white shadow-lg md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500">
+                <img src="{{$v.ProfilePicture}}" class="w-12 h-12 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
+                <h3 class="nunito-bold mt-3 mr-3">{{$v.Username}}</h3>
+                {{if $v.AlreadyFriend}}
+                    <button id="btn-remove-friend" hx-post="/remove-friend" hx-vals='{"secondary_user_id": "{{$v.ID}}"} 
+					hx-on:click="document.getElementById('user-search-result{{$i}}').style.display = 'none'; document.getElementById('search-results-dropdown').style.display = 'none';"' 
+					class="bg-red-700 nunito-bold text-sm hover:bg-red-800 text-white py-2 px-4 rounded">Remove Friend</button>
+                {{else}}
+                    <button id="btn-add-friend" hx-post="/send-friend-request" hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
+					hx-on:click="document.getElementById('user-search-result{{$i}}').style.display = 'none'; document.getElementById('search-results-dropdown').style.display = 'none';"' 
+					class="bg-white nunito-semibold hover:bg-gray-200 text-black text-md py-2 px-4 rounded">Add Friend</button>
+                {{end}}
+            </li>
+		</div>
+        {{end}}
+    </ul>
+	`
+	searchResultsTmpl, err = searchResultsTmpl.Parse(searchResultsTemplate)
+	if err != nil {
+		log.Printf("Template parsing error: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Template parsing failed")
+	}
+
+	return searchResultsTmpl.Execute(c.Response().Writer, users)
 }
 
 func (h UserHandler) UserShowHandler(c echo.Context) error {
@@ -420,6 +361,70 @@ func (h UserHandler) GetUserPayloadHandler(c echo.Context) error {
 	}
 
 	return render(c, user.CurrentUser(userPayload))
+}
+
+func fetchPotentialFriends(db *sql.DB, query string, currentUserID string) ([]model.UserPayload, error) {
+	var users []model.UserPayload
+
+	stmt, err := db.Prepare(`SELECT spotify_user_id, display_name, profile_picture FROM users WHERE display_name LIKE ? AND spotify_user_id != ?`)
+	if err != nil {
+		log.Printf("Error preparing statement: %v", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(query, currentUserID)
+	if err != nil {
+		log.Printf("Error executing query: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user model.UserPayload
+		if err := rows.Scan(&user.ID, &user.Username, &user.ProfilePicture); err != nil {
+			log.Printf("Error scanning row: %v", err)
+			continue
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func fetchFriendsMap(db *sql.DB, currentUserID string) (map[string]bool, error) {
+	friendsMap := make(map[string]bool)
+
+	stmt, err := db.Prepare(`SELECT user_id_1, user_id_2 FROM friends WHERE user_id_1 = ? OR user_id_2 = ?`)
+	if err != nil {
+		log.Printf("Error preparing statement: %v", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(currentUserID, currentUserID)
+	if err != nil {
+		log.Printf("Error executing query: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id1, id2 string
+		if err := rows.Scan(&id1, &id2); err != nil {
+			log.Printf("Error scanning row: %v", err)
+			continue
+		}
+
+		// Add both users to the map, marking them as friends
+		friendsMap[id1] = true
+		friendsMap[id2] = true
+	}
+
+	// Remove the current user from the map if present
+	delete(friendsMap, currentUserID)
+
+	return friendsMap, nil
 }
 
 func (h UserHandler) upsertUserDB(c echo.Context, userPayload model.UserPayload) error {

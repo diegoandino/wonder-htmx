@@ -10,3 +10,8 @@ type UserPayload struct {
 	CurrentAlbumName  string `json:"current_album_name"`
 	CurrentSongUrl    string `json:"current_song_url"`
 }
+
+type UserPayloadTemplate struct {
+	UserPayload
+	AlreadyFriend bool
+}
