@@ -109,24 +109,30 @@ templ Navbar() {
 const currentUserTemplate = `
     <div hx-get="/get-user-payload" hx-trigger="every 5s" hx-swap="outerHTML">
         <div class="currently-playing mt-4 mb-10 mr-4 ml-4 p-4 rounded-lg shadow-md relative overflow-hidden">
-            <div class="absolute inset-0 -z-10 bg-cover bg-center blur-xl" style="background-image: url('{{.CurrentAlbumArt}}');"></div>
+            <div class="absolute inset-0 -z-10 bg-cover bg-center blur-xl bg-black" style="background-image: url('{{.CurrentAlbumArt}}');"></div>
             <div class="user-profile flex mb-2 z-10 relative">
                 <img src="{{.ProfilePicture}}" alt="Profile Picture" class="w-16 h-16 rounded-full mr-4"/>
                 <div>
                     <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
                         <h3 class="ml-1 nunito-bold text-xl text-white">{{.Username}}</h3>
-                        <p class="ml-1 text-sm text-white nunito-medium-italic">Currently Playing</p>
+                        {{if eq .CurrentSongName ""}}
+                            <p class="ml-1 text-sm text-white nunito-medium-italic mr-1">is not currently playing anything...</p>
+                        {{else}}
+                            <p class="ml-1 text-sm text-white nunito-medium-italic">Currently Playing</p>
+                        {{end}}
                     </div>
                 </div>
             </div>
-            <div class="ml-20 z-10 relative">
-                <img src="{{.CurrentAlbumArt}}" alt="Album Art" class="w-36 h-36 mb-2 rounded"/>
-                <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
-                    <p class="text-md text-center text-white nunito-bold-italic">{{.CurrentSongName}}</p>
-                    <p class="text-sm text-center text-white nunito-medium">by {{.CurrentArtistName}}</p>
-                    <p class="text-sm text-center text-white nunito-semibold">{{.CurrentAlbumName}}</p>
+            {{if .CurrentSongName}}
+                <div class="ml-20 z-10 relative">
+                    <img src="{{.CurrentAlbumArt}}" alt="Album Art" class="w-36 h-36 mb-2 rounded"/>
+                    <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
+                        <p class="text-md text-center text-white nunito-bold-italic">{{.CurrentSongName}}</p>
+                        <p class="text-sm text-center text-white nunito-medium">by {{.CurrentArtistName}}</p>
+                        <p class="text-sm text-center text-white nunito-semibold">{{.CurrentAlbumName}}</p>
+                    </div>
                 </div>
-            </div>
+            {{end}}
         </div>
     </div>
 `
@@ -150,7 +156,7 @@ const friendsTemplate = `
                 {{range .}}
                 <li class="rounded-lg shadow p-4 relative overflow-hidden mb-3">
                     <!-- Background Album Art (Blurred) -->
-                    <div class="absolute inset-0 -z-10 shadow-md bg-cover bg-center blur-xl" style="background-image: url('{{.CurrentAlbumArt}}');"></div>
+                    <div class="absolute inset-0 -z-10 shadow-md bg-cover bg-center bg-black opacity-90 blur-xl" style="background-image: url('{{.CurrentAlbumArt}}');"></div>
                     
                     <!-- Content Container -->
                     <div class="relative z-10 flex mb-2">
@@ -160,20 +166,26 @@ const friendsTemplate = `
                             <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
                                 <!-- Username -->
                                 <h3 class="ml-1 text-xl font-semibold text-white nunito-bold">{{.Username}}</h3>
-                                <p class="ml-1 text-sm text-white nunito-medium-italic">Currently Playing</p>
+                                {{if eq .CurrentSongName ""}}
+                                    <p class="ml-1 text-sm text-white nunito-medium-italic mr-1">is not currently playing anything...</p>
+                                {{else}}
+                                    <p class="ml-1 text-sm text-white nunito-medium-italic">Currently Playing</p>
+                                {{end}}
                             </div>
                         </div>
                     </div>
 
                     <!-- Album Art Beside Text -->
-                    <div class="relative z-10 ml-20">
-                        <img src="{{.CurrentAlbumArt}}" alt="Friend's Album Art" class="w-36 h-36 mb-2 rounded"/>
-                         <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
-                            <a href="{{.CurrentSongUrl}}" target="_blank" class="text-md text-white hover:underline nunito-bold-italic"><p class="text-center">{{.CurrentSongName}}</p></a>
-                            <p class="text-sm text-white text-center nunito-medium">by {{.CurrentArtistName}}</p>
-                            <p class="text-sm text-white text-center nunito-semibold">{{.CurrentAlbumName}}</p>
-                        </div> 
-                    </div>
+                    {{if .CurrentSongName}}
+                        <div class="relative z-10 ml-20">
+                            <img src="{{.CurrentAlbumArt}}" alt="Friend's Album Art" class="w-36 h-36 mb-2 rounded"/>
+                             <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
+                                <a href="{{.CurrentSongUrl}}" target="_blank" class="text-md text-white hover:underline nunito-bold-italic"><p class="text-center">{{.CurrentSongName}}</p></a>
+                                <p class="text-sm text-white text-center nunito-medium">by {{.CurrentArtistName}}</p>
+                                <p class="text-sm text-white text-center nunito-semibold">{{.CurrentAlbumName}}</p>
+                            </div> 
+                        </div>
+                    {{end}}
                 </li>
                 {{end}}
             </ul>

@@ -558,25 +558,25 @@ func (h UserHandler) getUserPayload(c echo.Context, client *spotify.Client) (mod
 		return model.UserPayload{}, err
 	}
 
-	if playing.Item != nil {
-		userPayload = model.UserPayload{
-			ID:                user.ID,
-			Username:          user.DisplayName,
-			ProfilePicture:    "https://ui-avatars.com/api/?background=fff&color=000&name=u",
-			CurrentAlbumArt:   playing.Item.Album.Images[0].URL,
-			CurrentSongName:   playing.Item.Name,
-			CurrentAlbumName:  playing.Item.Album.Name,
-			CurrentArtistName: playing.Item.Artists[0].Name,
-			CurrentSongUrl:    "https://open.spotify.com/track/" + string(playing.Item.URI)[14:],
-		}
-		if len(user.Images) > 0 {
-			userPayload.ProfilePicture = user.Images[0].URL
-		}
-		c.Request().Header.Set("Content-Type", "application/json")
-	} else {
-		return model.UserPayload{}, c.String(200, "No song is currently playing")
+	userPayload = model.UserPayload{
+		ID:             user.ID,
+		Username:       user.DisplayName,
+		ProfilePicture: "https://ui-avatars.com/api/?background=fff&color=000&name=u",
 	}
 
+	if playing.Item != nil {
+		userPayload.CurrentAlbumArt = playing.Item.Album.Images[0].URL
+		userPayload.CurrentSongName = playing.Item.Name
+		userPayload.CurrentAlbumName = playing.Item.Album.Name
+		userPayload.CurrentArtistName = playing.Item.Artists[0].Name
+		userPayload.CurrentSongUrl = "https://open.spotify.com/track/" + string(playing.Item.URI)[14:]
+	}
+
+	if len(user.Images) > 0 {
+		userPayload.ProfilePicture = user.Images[0].URL
+	}
+
+	c.Request().Header.Set("Content-Type", "application/json")
 	return userPayload, nil
 }
 
