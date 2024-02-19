@@ -110,31 +110,33 @@ func Navbar() templ.Component {
 const templateString = `
     <div id="notifications-container" class="my-4">
         <div class="bg-black bg-opacity-40 backdrop-blur-lg overflow-hidden rounded-lg p-4 mx-4">
-            <p class="nunito-semibold text-2xl text-white">Notifications</p>
+            <p class="nunito-semibold text-2xl text-white mb-3">Notifications</p>
             <ul class="space-y-4">
                 {{range $i, $v := .}}
-                <li id="notification{{$i}}" class="flex bg-white bg-opacity-90 rounded-lg shadow p-4">
-                    <img src="{{$v.ProfilePicture}}" alt="Profile Picture" class="w-16 h-16 rounded-full mr-4"/>
-                    <div class="flex flex-col justify-center">
-                        <h3 class="nunito-semibold">{{$v.Username}}</h3>
-                        <div class="flex mt-2">
-                            <button 
-                            hx-post="/accept-friend-request" 
-                            hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
-                            hx-on:click="document.getElementById('notification{{$i}}').style.display = 'none';"
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
-                                Accept
-                            </button>
-                            <button 
-                            hx-post="/decline-friend-request" 
-                            hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
-                            hx-on:click="document.getElementById('notification{{$i}}').style.display = 'none';"
-                            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                                Decline
-                            </button>
+                <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded">
+                    <li id="notification{{$i}}" class="flex rounded-lg shadow p-4">
+                        <img src="{{$v.ProfilePicture}}" alt="Profile Picture" class="w-16 h-16 rounded-full mt-4 mr-4"/>
+                        <div class="flex flex-col justify-center">
+                            <h3 class="nunito-semibold text-white">{{$v.Username}}<p class="text-white nunito-medium">sent a friend request</p></h3>
+                            <div class="flex mt-2">
+                                <button 
+                                hx-post="/accept-friend-request" 
+                                hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
+                                hx-on:click="document.getElementById('notification{{$i}}').style.display = 'none';"
+                                class="bg-white hover:bg-gray-200 text-black outline-gray-500 font-bold py-2 px-4 rounded mr-2">
+                                    Accept
+                                </button>
+                                <button 
+                                hx-post="/decline-friend-request" 
+                                hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
+                                hx-on:click="document.getElementById('notification{{$i}}').style.display = 'none';"
+                                class="bg-red-700 hover:bg-red-800 outline-white text-white font-bold py-2 px-4 rounded">
+                                    Decline
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </li>
+                    </li>
+                </div>
                 {{end}}
             </ul>
         </div>

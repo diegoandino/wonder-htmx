@@ -26,6 +26,15 @@ body::before {
     z-index: -100;
 }
 
+input[type='text'], textarea { 
+    background-color: black;
+    backdrop-filter: blur(6px);
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    
+    /* Ensuring the input field text is not blurred */
+    -webkit-backdrop-filter: blur(6px);
+}
+
 .nunito-medium {
   font-family: "Nunito", sans-serif;
   font-optical-sizing: auto;
