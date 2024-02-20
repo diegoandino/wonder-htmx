@@ -67,6 +67,7 @@ func main() {
 	app.GET("/get-friends", userHandler.GetFriendsHandler)
 	app.GET("/get-user-payload", userHandler.GetUserPayloadHandler)
 	app.GET("/notifications", userHandler.LoadNotificationsHandler)
+	app.GET("/check-notifications", userHandler.CheckNotificationsHandler)
 
 	app.POST("/send-friend-request", userHandler.SendFriendRequestHandler)
 	app.POST("/accept-friend-request", userHandler.AcceptFriendRequestHandler)

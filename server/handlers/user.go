@@ -25,6 +25,46 @@ type UserHandler struct {
 	LoginHandler  LoginHandler
 }
 
+func (h *UserHandler) CheckNotificationsHandler(c echo.Context) error {
+	db, err := sql.Open("sqlite3", "../db/wonder.db")
+	if err != nil {
+		log.Fatal("Couldn't open db:", err)
+	}
+	defer db.Close()
+
+	currentUser, err := h.getCurrentUser(c)
+	if err != nil {
+		return err
+	}
+
+	stmt, err := db.Prepare(`select primary_id from friend_status where secondary_id = ? and status = 'pending' order by timestamp desc`)
+	if err != nil {
+		log.Fatal("Couldn't prepare db statement:", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(currentUser.ID)
+
+	hasNotifications := false
+	for rows.Next() {
+		hasNotifications = true
+	}
+
+	newNotificationsTmpl := template.New("hasNewNotifications")
+	const newNotificationsTemplate = `
+		{{if .}}
+			<div id="new-notification-bubble" class="absolute block w-3 h-3 bg-red-500 border-2 border-white rounded-full -top-0.5 start-2.5 dark:border-gray-900"></div>
+		{{end}}
+	`
+	newNotificationsTmpl, err = newNotificationsTmpl.Parse(newNotificationsTemplate)
+	if err != nil {
+		log.Printf("Template parsing error: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Template parsing failed")
+	}
+
+	return newNotificationsTmpl.Execute(c.Response().Writer, hasNotifications)
+}
+
 func (h *UserHandler) LoadNotificationsHandler(c echo.Context) error {
 	db, err := sql.Open("sqlite3", "../db/wonder.db")
 	if err != nil {
