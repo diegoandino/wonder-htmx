@@ -96,7 +96,7 @@ func Navbar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div class=\"items-center justify-between hidden w-full md:flex md:w-auto md:order-1\" id=\"navbar-search\"><div class=\"relative mt-3 md:hidden\"><div class=\"absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none\"><svg class=\"w-4 h-4 text-gray-500 dark:text-gray-400\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 20 20\"><path stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z\"></path></svg></div><input type=\"text\" id=\"search-navbar\" class=\"block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\" name=\"query\" hx-get=\"/search-friends\" hx-target=\"#search-results-dropdown\" hx-trigger=\"keyup\" placeholder=\"Search users...\" oninput=\"hideIfEmpty()\"></div><div id=\"search-results-dropdown\" class=\"hidden\" hx-swap-oob=\"delete\"></div></div></div></nav><script>\n\t\tfunction hideIfEmpty() {\n\t\t\tvar input = document.getElementById('search-navbar').value;\n\t\t\tvar inputLength = input.length;\n\t\t\tconsole.log(input);\n\t\t\tif (inputLength === 0) {\n\t\t\t\tdocument.getElementById('search-results-dropdown').style.display = 'none';\n\t\t\t}\n\t\t}\n\t</script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div class=\"items-center justify-between hidden w-full md:flex md:w-auto md:order-1\" id=\"navbar-search\"><div class=\"relative mt-3 md:hidden\"><div class=\"absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none\"><svg class=\"w-4 h-4 text-gray-500 dark:text-gray-400\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 20 20\"><path stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z\"></path></svg></div><input type=\"text\" id=\"search-navbar\" class=\"block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\" name=\"query\" hx-get=\"/search-friends\" hx-target=\"#search-results-dropdown\" hx-trigger=\"keyup\" placeholder=\"Search users...\" oninput=\"hideIfEmpty()\"></div><div id=\"search-results-dropdown\" class=\"hidden\" hx-swap-oob=\"delete\"></div></div></div></nav><script>\n\t\tfunction hideIfEmpty() {\n\t\t\tvar input = document.getElementById('search-navbar').value;\n\t\t\tvar inputLength = input.length;\n\t\t\tconsole.log(input);\n\t\t\tif (inputLength === 0) {\n\t\t\t\tdocument.getElementById('search-results-dropdown').style.display = 'none';\n\t\t\t}\n\t\t}\n\t</script><script>\n        function removeItemTransition(elementId) {\n          var element = document.getElementById(elementId);\n          element.classList.add('fade-out');\n          element.addEventListener('transitionend', function() {\n              element.style.display = 'none';\n              \n              // Optionally, you can also hide the parent dropdown if needed\n              document.getElementById('search-results-dropdown').style.display = 'none';\n        });\n      }\n    </script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -119,17 +119,19 @@ const templateString = `
                         <div class="flex flex-col justify-center">
                             <h3 class="nunito-semibold text-white">{{$v.Username}}<p class="text-white nunito-medium">sent a friend request</p></h3>
                             <div class="flex mt-2">
-                                <button 
+                                <button
+                                id="btn-accept-request"
                                 hx-post="/accept-friend-request" 
                                 hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
-                                hx-on:click="document.getElementById('notification{{$i}}').style.display = 'none';"
+                                onclick="removeItemTransition('notification{{$i}}')" 
                                 class="bg-white hover:bg-gray-200 text-black outline-gray-500 font-bold py-2 px-4 rounded mr-2">
                                     Accept
                                 </button>
-                                <button 
+                                <button
+                                id="btn-decline-request"
                                 hx-post="/decline-friend-request" 
                                 hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
-                                hx-on:click="document.getElementById('notification{{$i}}').style.display = 'none';"
+                                onclick="removeItemTransition('notification{{$i}}')" 
                                 class="bg-red-700 hover:bg-red-800 outline-white text-white font-bold py-2 px-4 rounded">
                                     Decline
                                 </button>

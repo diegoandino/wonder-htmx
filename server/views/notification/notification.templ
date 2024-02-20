@@ -112,6 +112,18 @@ templ Navbar() {
 			}
 		}
 	</script>
+	<script>
+        function removeItemTransition(elementId) {
+          var element = document.getElementById(elementId);
+          element.classList.add('fade-out');
+          element.addEventListener('transitionend', function() {
+              element.style.display = 'none';
+              
+              // Optionally, you can also hide the parent dropdown if needed
+              document.getElementById('search-results-dropdown').style.display = 'none';
+        });
+      }
+    </script>
 }
 
 const templateString = `
@@ -126,17 +138,19 @@ const templateString = `
                         <div class="flex flex-col justify-center">
                             <h3 class="nunito-semibold text-white">{{$v.Username}}<p class="text-white nunito-medium">sent a friend request</p></h3>
                             <div class="flex mt-2">
-                                <button 
+                                <button
+                                id="btn-accept-request"
                                 hx-post="/accept-friend-request" 
                                 hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
-                                hx-on:click="document.getElementById('notification{{$i}}').style.display = 'none';"
+                                onclick="removeItemTransition('notification{{$i}}')" 
                                 class="bg-white hover:bg-gray-200 text-black outline-gray-500 font-bold py-2 px-4 rounded mr-2">
                                     Accept
                                 </button>
-                                <button 
+                                <button
+                                id="btn-decline-request"
                                 hx-post="/decline-friend-request" 
                                 hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
-                                hx-on:click="document.getElementById('notification{{$i}}').style.display = 'none';"
+                                onclick="removeItemTransition('notification{{$i}}')" 
                                 class="bg-red-700 hover:bg-red-800 outline-white text-white font-bold py-2 px-4 rounded">
                                     Decline
                                 </button>

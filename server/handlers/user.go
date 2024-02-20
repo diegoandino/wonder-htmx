@@ -187,7 +187,13 @@ func (h *UserHandler) AcceptFriendRequestHandler(c echo.Context) error {
 		return updateErr
 	}
 
-	return nil
+	acceptFriendRequestAction := `
+        <script>
+            const acceptRequestBtn = document.getElementById('btn-accept-request');
+            acceptRequestBtn.textContent = 'Accepted';
+        </script>
+    `
+	return c.HTML(http.StatusOK, acceptFriendRequestAction)
 }
 
 func (h *UserHandler) DeclineFriendRequestHandler(c echo.Context) error {
@@ -213,7 +219,13 @@ func (h *UserHandler) DeclineFriendRequestHandler(c echo.Context) error {
 	secondaryUserID := c.FormValue("secondary_user_id")
 	_, err = updateFriendStatusStmt.Exec(currentUser.ID, secondaryUserID, secondaryUserID, currentUser.ID)
 
-	return err
+	declineFriendRequestAction := `
+        <script>
+            const declineRequestBtn = document.getElementById('btn-decline-request');
+            declineRequestBtn.textContent = 'Declined';
+        </script>
+    `
+	return c.HTML(http.StatusOK, declineFriendRequestAction)
 }
 
 func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
