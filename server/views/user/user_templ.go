@@ -109,12 +109,18 @@ const currentUserTemplate = `
                 </div>
             </div>
             {{if .CurrentSongName}}
-                <div class="ml-20 z-10 relative">
-                    <img src="{{.CurrentAlbumArt}}" alt="Album Art" class="w-36 h-36 mb-2 rounded"/>
-                    <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
-                        <p class="text-md text-center text-white nunito-bold-italic">{{.CurrentSongName}}</p>
-                        <p class="text-sm text-center text-white nunito-medium">by {{.CurrentArtistName}}</p>
-                        <p class="text-sm text-center text-white nunito-semibold">{{.CurrentAlbumName}}</p>
+                <div class="z-10 relative">
+                    <img src="{{.CurrentAlbumArt}}" alt="Album Art" class="ml-20 w-36 h-36 mb-2 rounded"/>
+                    <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded min-w-min mx-auto">
+                        <a href="{{.CurrentSongUrl}}" target="_blank" class="block text-md text-white text-center underline nunito-bold-italic px-2">
+                            {{.CurrentSongName}}
+                        </a>
+                        <p class="text-sm text-white text-center nunito-medium px-2">
+                            by {{.CurrentArtistName}}
+                        </p>
+                        <p class="text-sm text-white text-center nunito-semibold px-2">
+                            {{.CurrentAlbumName}}
+                        </p>
                     </div>
                 </div>
             {{end}}
@@ -182,13 +188,19 @@ const friendsTemplate = `
 
                     <!-- Album Art Beside Text -->
                     {{if .CurrentSongName}}
-                        <div class="relative z-10 ml-20">
-                            <img src="{{.CurrentAlbumArt}}" alt="Friend's Album Art" class="w-36 h-36 mb-2 rounded"/>
-                             <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
-                                <a href="{{.CurrentSongUrl}}" target="_blank" class="text-md text-white underline nunito-bold-italic"><p class="text-center ml-2 mr-2">{{.CurrentSongName}}</p></a>
-                                <p class="text-sm text-white text-center nunito-medium">by {{.CurrentArtistName}}</p>
-                                <p class="text-sm text-white text-center nunito-semibold">{{.CurrentAlbumName}}</p>
-                            </div> 
+                        <div class="relative z-10">
+                            <img src="{{.CurrentAlbumArt}}" alt="Friend's Album Art" class="ml-20 w-36 h-36 mb-2 rounded"/>
+                             <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded min-w-min mx-auto ml-2">
+                                <a href="{{.CurrentSongUrl}}" target="_blank" class="block text-md text-white text-center underline nunito-bold-italic px-2">
+                                    {{.CurrentSongName}}
+                                </a>
+                                <p class="text-sm text-white text-center nunito-medium px-2">
+                                    by {{.CurrentArtistName}}
+                                </p>
+                                <p class="text-sm text-white text-center nunito-semibold px-2">
+                                    {{.CurrentAlbumName}}
+                                </p>
+                            </div>
                         </div>
                     {{end}}
                 </li>
