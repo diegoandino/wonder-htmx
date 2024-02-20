@@ -14,4 +14,5 @@ type UserPayload struct {
 type UserPayloadTemplate struct {
 	UserPayload
 	AlreadyFriend bool
+	Pending       bool
 }

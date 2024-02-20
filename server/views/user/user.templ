@@ -104,6 +104,18 @@ templ Navbar() {
 			}
 		}
 	</script>
+	<script>
+        function removeItemTransition(elementId) {
+          var element = document.getElementById(elementId);
+          element.classList.add('fade-out');
+          element.addEventListener('transitionend', function() {
+              element.style.display = 'none';
+              
+              // Optionally, you can also hide the parent dropdown if needed
+              document.getElementById('search-results-dropdown').style.display = 'none';
+        });
+      }
+    </script>
 }
 
 const currentUserTemplate = `

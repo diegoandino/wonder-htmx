@@ -35,6 +35,11 @@ input[type='text'], textarea {
     -webkit-backdrop-filter: blur(6px);
 }
 
+.fade-out {
+  transition: opacity 1.5s ease-out;
+  opacity: 0;
+}
+
 .nunito-medium {
   font-family: "Nunito", sans-serif;
   font-optical-sizing: auto;

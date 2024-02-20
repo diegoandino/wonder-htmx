@@ -37,7 +37,7 @@ func (h *UserHandler) LoadNotificationsHandler(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare(`select primary_id from friend_status where secondary_id = ? and status = 'pending'`)
+	stmt, err := db.Prepare(`select primary_id from friend_status where secondary_id = ? and status = 'pending' order by timestamp desc`)
 	if err != nil {
 		log.Fatal("Couldn't prepare db statement:", err)
 	}
@@ -107,7 +107,13 @@ func (h *UserHandler) RemoveFriendHandler(c echo.Context) error {
 
 	_, err = stmt.Exec(currentUser.ID, secondaryUserID, secondaryUserID, currentUser.ID)
 
-	return err
+	removeFriendAction := `
+        <script>
+            const removeFriendBtn = document.getElementById('btn-remove-friend');
+            removeFriendBtn.textContent = 'Removed';
+        </script>
+    `
+	return c.HTML(http.StatusOK, removeFriendAction)
 }
 
 func (h *UserHandler) SendFriendRequestHandler(c echo.Context) error {
@@ -136,7 +142,7 @@ func (h *UserHandler) SendFriendRequestHandler(c echo.Context) error {
 	sentFriendRequestAction := `
         <script>
             const addFriendBtn = document.getElementById('btn-add-friend');
-            addFriendBtn.textContent = 'Friend request sent successfully.';
+            addFriendBtn.textContent = 'Sent';
         </script>
     `
 	return c.HTML(http.StatusOK, sentFriendRequestAction)
@@ -240,13 +246,21 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 		return err
 	}
 
+	// Fetch pending friends
+	pendingFriendsMap, err := fetchPendingFriendsMap(db, currentUser.ID)
+	if err != nil {
+		return err
+	}
+
 	// Prepare users for the template
 	var users []model.UserPayloadTemplate
 	for _, user := range potentialFriends {
 		alreadyFriends := friendsMap[user.ID]
+		pending := pendingFriendsMap[user.ID]
 		users = append(users, model.UserPayloadTemplate{
 			UserPayload:   user,
 			AlreadyFriend: alreadyFriends,
+			Pending:       pending,
 		})
 	}
 
@@ -261,12 +275,15 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
                 <img src="{{$v.ProfilePicture}}" class="w-12 h-12 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
                 <h3 class="nunito-bold mt-3 mr-3">{{$v.Username}}</h3>
                 {{if $v.AlreadyFriend}}
-                    <button id="btn-remove-friend" hx-post="/remove-friend" hx-vals='{"secondary_user_id": "{{$v.ID}}"} 
-					hx-on:click="document.getElementById('user-search-result{{$i}}').style.display = 'none'; document.getElementById('search-results-dropdown').style.display = 'none';"' 
+                    <button id="btn-remove-friend" hx-post="/remove-friend" hx-vals='{"secondary_user_id": "{{$v.ID}}"}' 
+					onclick="removeItemTransition('user-search-result{{$i}}')" 
 					class="bg-red-700 nunito-bold text-sm hover:bg-red-800 text-white py-2 px-4 rounded">Remove Friend</button>
+				{{else if $v.Pending}}
+					<button id="btn-pending-friend" 
+					class="bg-white nunito-semibold hover:bg-gray-200 text-black text-md py-2 px-4 rounded">Pending</button>
                 {{else}}
                     <button id="btn-add-friend" hx-post="/send-friend-request" hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
-					hx-on:click="document.getElementById('user-search-result{{$i}}').style.display = 'none'; document.getElementById('search-results-dropdown').style.display = 'none';"' 
+					onclick="removeItemTransition('user-search-result{{$i}}')" 
 					class="bg-white nunito-semibold hover:bg-gray-200 text-black text-md py-2 px-4 rounded">Add Friend</button>
                 {{end}}
             </li>
@@ -425,6 +442,41 @@ func fetchFriendsMap(db *sql.DB, currentUserID string) (map[string]bool, error) 
 	delete(friendsMap, currentUserID)
 
 	return friendsMap, nil
+}
+
+func fetchPendingFriendsMap(db *sql.DB, currentUserID string) (map[string]bool, error) {
+	pendingFriendsMap := make(map[string]bool)
+
+	stmt, err := db.Prepare(`SELECT primary_id, secondary_id FROM friend_status WHERE (primary_id = ? or secondary_id = ?) AND status = 'pending' ORDER BY timestamp DESC`)
+	if err != nil {
+		log.Printf("Error preparing statement: %v", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(currentUserID, currentUserID)
+	if err != nil {
+		log.Printf("Error executing query: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id1, id2 string
+		if err := rows.Scan(&id1, &id2); err != nil {
+			log.Printf("Error scanning row: %v", err)
+			continue
+		}
+
+		// Add both users to the map, marking them as friends
+		pendingFriendsMap[id1] = true
+		pendingFriendsMap[id2] = true
+	}
+
+	// Remove the current user from the map if present
+	delete(pendingFriendsMap, currentUserID)
+
+	return pendingFriendsMap, nil
 }
 
 func (h UserHandler) upsertUserDB(c echo.Context, userPayload model.UserPayload) error {
