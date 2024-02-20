@@ -185,7 +185,7 @@ const friendsTemplate = `
                         <div class="relative z-10 ml-20">
                             <img src="{{.CurrentAlbumArt}}" alt="Friend's Album Art" class="w-36 h-36 mb-2 rounded"/>
                              <div class="bg-black bg-opacity-20 backdrop-blur-lg rounded w-36">
-                                <a href="{{.CurrentSongUrl}}" target="_blank" class="text-md text-white hover:underline nunito-bold-italic"><p class="text-center">{{.CurrentSongName}}</p></a>
+                                <a href="{{.CurrentSongUrl}}" target="_blank" class="text-md text-white underline nunito-bold-italic"><p class="text-center ml-2 mr-2">{{.CurrentSongName}}</p></a>
                                 <p class="text-sm text-white text-center nunito-medium">by {{.CurrentArtistName}}</p>
                                 <p class="text-sm text-white text-center nunito-semibold">{{.CurrentAlbumName}}</p>
                             </div> 
