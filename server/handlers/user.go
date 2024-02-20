@@ -316,40 +316,44 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 		})
 	}
 
-	// Execute the template with the users slice
-	searchResultsTmpl := template.New("searchResults")
-	const searchResultsTemplate = `
-    <ul hx-swap-oob="true" id="search-results-dropdown" class="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg bg-black bg-opacity-40 backdrop-blur-lg 
-	rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">		
-	{{range $i, $v := .}}
-		<div class="bg-black bg-opacity-20 backdrop-blur-lg rounded mb-2">
-            <li id="user-search-result{{$i}}" class="flex py-2 px-3 text-white shadow-lg md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500">
-                <img src="{{$v.ProfilePicture}}" class="w-12 h-12 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
-                <h3 class="nunito-bold mt-3 mr-3">{{$v.Username}}</h3>
-                {{if $v.AlreadyFriend}}
-                    <button id="btn-remove-friend" hx-post="/remove-friend" hx-vals='{"secondary_user_id": "{{$v.ID}}"}' 
-					onclick="removeItemTransition('user-search-result{{$i}}')" 
-					class="bg-red-700 nunito-bold text-sm hover:bg-red-800 text-white py-2 px-4 rounded">Remove Friend</button>
-				{{else if $v.Pending}}
-					<button id="btn-pending-friend" 
-					class="bg-white nunito-semibold hover:bg-gray-200 text-black text-md py-2 px-4 rounded">Pending</button>
-                {{else}}
-                    <button id="btn-add-friend" hx-post="/send-friend-request" hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
-					onclick="removeItemTransition('user-search-result{{$i}}')" 
-					class="bg-white nunito-semibold hover:bg-gray-200 text-black text-md py-2 px-4 rounded">Add Friend</button>
-                {{end}}
-            </li>
-		</div>
-        {{end}}
-    </ul>
-	`
-	searchResultsTmpl, err = searchResultsTmpl.Parse(searchResultsTemplate)
-	if err != nil {
-		log.Printf("Template parsing error: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "Template parsing failed")
+	if len(users) > 0 {
+
+		searchResultsTmpl := template.New("searchResults")
+		const searchResultsTemplate = `
+		<ul hx-swap-oob="true" id="search-results-dropdown" class="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg bg-black bg-opacity-40 backdrop-blur-lg 
+		rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">		
+		{{range $i, $v := .}}
+			<div class="bg-black bg-opacity-20 backdrop-blur-lg rounded mb-2">
+				<li id="user-search-result{{$i}}" class="flex py-2 px-3 text-white shadow-lg md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500">
+					<img src="{{$v.ProfilePicture}}" class="w-12 h-12 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
+					<h3 class="nunito-bold mt-3 mr-3">{{$v.Username}}</h3>
+					{{if $v.AlreadyFriend}}
+						<button id="btn-remove-friend" hx-post="/remove-friend" hx-vals='{"secondary_user_id": "{{$v.ID}}"}' 
+						onclick="removeItemTransition('user-search-result{{$i}}')" 
+						class="bg-red-700 nunito-bold text-sm hover:bg-red-800 text-white py-2 px-4 rounded">Remove Friend</button>
+					{{else if $v.Pending}}
+						<button id="btn-pending-friend" 
+						class="bg-white nunito-semibold hover:bg-gray-200 text-black text-md py-2 px-4 rounded">Pending</button>
+					{{else}}
+						<button id="btn-add-friend" hx-post="/send-friend-request" hx-vals='{"secondary_user_id": "{{$v.ID}}"}'
+						onclick="removeItemTransition('user-search-result{{$i}}')" 
+						class="bg-white nunito-semibold hover:bg-gray-200 text-black text-md py-2 px-4 rounded">Add Friend</button>
+					{{end}}
+				</li>
+			</div>
+			{{end}}
+		</ul>
+		`
+		searchResultsTmpl, err = searchResultsTmpl.Parse(searchResultsTemplate)
+		if err != nil {
+			log.Printf("Template parsing error: %v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Template parsing failed")
+		}
+
+		return searchResultsTmpl.Execute(c.Response().Writer, users)
 	}
 
-	return searchResultsTmpl.Execute(c.Response().Writer, users)
+	return nil
 }
 
 func (h UserHandler) UserShowHandler(c echo.Context) error {
