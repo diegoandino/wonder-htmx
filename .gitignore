@@ -22,7 +22,7 @@ server/tmp/
 *.test
 
 # DB
-*.db
+# *.db
 
 # Go build directories
 server/dist/
