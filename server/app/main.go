@@ -16,30 +16,20 @@ import (
 )
 
 var (
-	// Initialize the Spotify authenticator with your client ID and client secret
 	auth = spotify.NewAuthenticator(
-		"http://localhost:8080/callback",
+		"https://wonder.andino.io/callback",
 		spotify.ScopeUserReadCurrentlyPlaying,
 		spotify.ScopeUserReadPlaybackState,
 	)
-
-	// Create a sessions store (replace "your-secret-key" with a real secret key)
-	store = sessions.NewCookieStore([]byte("your-secret-key"))
-
-	// Use a concurrent map to store user-specific data
+	store = sessions.NewCookieStore([]byte(loadEnv("STORE_KEY")))
 	userDataStore sync.Map
 )
 
 func init() {
-	// Register the oauth2.Token type with the encoding/gob package
 	gob.Register(&oauth2.Token{})
 }
 
-// use godot package to load/read the .env file and
-// return the value of the key
 func loadEnv(key string) string {
-
-	// load .env file
 	err := godotenv.Load(".env")
 
 	if err != nil {
