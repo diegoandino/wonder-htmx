@@ -107,7 +107,6 @@ templ Navbar() {
 		function hideIfEmpty() {
 			var input = document.getElementById('search-navbar').value;
 			var inputLength = input.length;
-			console.log(input);
 			if (inputLength === 0) {
 				document.getElementById('search-results-dropdown').style.display = 'none';
 			}
@@ -119,8 +118,6 @@ templ Navbar() {
           element.classList.add('fade-out');
           element.addEventListener('transitionend', function() {
               element.style.display = 'none';
-              
-              // Optionally, you can also hide the parent dropdown if needed
               document.getElementById('search-results-dropdown').style.display = 'none';
         });
       }

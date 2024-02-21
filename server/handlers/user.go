@@ -320,11 +320,11 @@ func (h *UserHandler) SearchUsersHandler(c echo.Context) error {
 
 		searchResultsTmpl := template.New("searchResults")
 		const searchResultsTemplate = `
-		<ul hx-swap-oob="true" id="search-results-dropdown" class="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg bg-black bg-opacity-40 backdrop-blur-lg 
-		rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">		
+		<ul hx-swap-oob="true" id="search-results-dropdown" class="flex flex-col p-4 mt-4 font-medium rounded-lg bg-black bg-opacity-40 backdrop-blur-lg 
+		rounded-lg md:order-2 md:center md:w-full">		
 		{{range $i, $v := .}}
-			<div class="bg-black bg-opacity-20 backdrop-blur-lg rounded mb-2">
-				<li id="user-search-result{{$i}}" class="flex py-2 px-3 text-white shadow-lg md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500">
+			<div class="bg-black bg-opacity-20 backdrop-blur-lg rounded mb-2 md:w-full">
+				<li id="user-search-result{{$i}}" class="flex py-2 px-3 text-white shadow-lg md:bg-transparent md:text-white">
 					<img src="{{$v.ProfilePicture}}" class="w-12 h-12 rounded-full mr-4" alt="Profile Picture" style="width: 50px; height: 50px;">
 					<h3 class="nunito-bold mt-3 mr-3">{{$v.Username}}</h3>
 					{{if $v.AlreadyFriend}}
